@@ -1,0 +1,23 @@
+{
+  "name": "env-only",
+  "version": "0.0.0",
+  "description": "Split up client-only and server-only code at the expression level",
+  "keywords": [
+    "rollup-plugin",
+    "vite-plugin"
+  ],
+  "author": "pcattori",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
