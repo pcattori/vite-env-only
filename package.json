@@ -14,10 +14,11 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.2"
   }
 }
