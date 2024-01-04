@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "description": "Split up client-only and server-only code at the expression level",
   "keywords": [
-    "rollup-plugin",
     "vite-plugin"
   ],
   "author": "pcattori",
