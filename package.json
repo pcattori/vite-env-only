@@ -1,9 +1,14 @@
 {
-  "name": "env-only",
+  "name": "vite-env-only",
   "version": "0.0.0",
-  "description": "Split up client-only and server-only code at the expression level",
+  "description": "Explicitly split up client and server code at the expression level",
   "keywords": [
-    "vite-plugin"
+    "vite-plugin",
+    "env",
+    "only",
+    "client",
+    "server",
+    "macro"
   ],
   "author": "pcattori",
   "license": "MIT",
@@ -31,5 +36,8 @@
     "@babel/parser": "^7.23.6",
     "@babel/traverse": "^7.23.7",
     "@babel/types": "^7.23.6"
+  },
+  "prettier": {
+    "semi": false
   }
 }
