@@ -10,6 +10,7 @@
     "server",
     "macro"
   ],
+  "repository": "pcattori/vite-env-only",
   "author": "pcattori",
   "license": "MIT",
   "type": "module",
