@@ -15,7 +15,7 @@ export const server$ = maybe
  */
 export const client$ = maybe
 
-export const plugin = () => {
+export default () => {
   return {
     name: "vite-plugin-env-only",
     async transform(code: string, _: unknown, options: { ssr?: boolean }) {
