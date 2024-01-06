@@ -1,20 +1,39 @@
 import generate from "@babel/generator"
 import { parse } from "@babel/parser"
-import traverse from "@babel/traverse"
+import traverse, { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
 
 import { name as pkgName } from "../package.json"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"
 
-export const transform = (source: string, macro: string): string => {
+const isMacro = (path: NodePath<t.CallExpression>, name: string) => {
+  if (!t.isIdentifier(path.node.callee, { name })) return false
+  let binding = path.scope.getBinding(name)
+  if (!t.isImportDeclaration(binding?.path.parent)) return false
+  if (binding.path.parent.source.value !== pkgName) return false
+  return true
+}
+
+export const transform = (
+  source: string,
+  options: { ssr: boolean },
+): string => {
   let ast = parse(source, { sourceType: "module" })
   traverse(ast, {
     CallExpression(path) {
-      if (!t.isIdentifier(path.node.callee, { name: macro })) return
-      let binding = path.scope.getBinding(macro)
-      if (!t.isImportDeclaration(binding?.path.parent)) return
-      if (binding.path.parent.source.value !== pkgName) return
-      path.replaceWith(t.identifier("undefined"))
+      // env does not match
+      // `macro$(expr)` -> `undefined`
+      if (isMacro(path, options.ssr ? "client$" : "server$")) {
+        path.replaceWith(t.identifier("undefined"))
+      }
+      // env matches
+      // `macro$(expr)` -> `expr`
+      if (isMacro(path, options.ssr ? "server$" : "client$")) {
+        let arg = path.node.arguments[0]
+        if (t.isExpression(arg)) {
+          path.replaceWith(arg)
+        }
+      }
     },
   })
   eliminateUnusedVariables(ast)

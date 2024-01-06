@@ -19,9 +19,8 @@ export default () => {
   return {
     name: "vite-plugin-env-only",
     async transform(code: string, _: unknown, options: { ssr?: boolean }) {
-      let macro = options.ssr ? "client$" : "server$"
-      if (code.includes(macro) && code.includes(pkgName)) {
-        return transform(code, macro)
+      if (code.includes(pkgName)) {
+        return transform(code, { ssr: options.ssr === true })
       }
     },
   }

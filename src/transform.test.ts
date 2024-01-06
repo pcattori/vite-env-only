@@ -4,22 +4,29 @@ import dedent from "dedent"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
-test("macro / elimination", () => {
+test("elimination", () => {
   const source = dedent`
-    import { server$ } from "${pkgName}"
+    import { server$, client$ } from "${pkgName}"
     import { a } from "server-only"
+    import { b } from "client-only"
 
-    const b = server$(a)
-    console.log(b)
+    const c = server$(a)
+    console.log(c)
+
+    const d = client$(b)
+    console.log(d)
   `
   const expected = dedent`
-    const b = undefined;
-    console.log(b);
+    import { b } from "client-only";
+    const c = undefined;
+    console.log(c);
+    const d = b;
+    console.log(d);
   `
-  expect(transform(source, "server$")).toBe(expected)
+  expect(transform(source, { ssr: false })).toBe(expected)
 })
 
-test("macro / no elimination when imported from different package", () => {
+test("no elimination when imported from different package", () => {
   const source = dedent`
     import { server$ } from "something-else"
     import { a } from "dep"
@@ -33,5 +40,5 @@ test("macro / no elimination when imported from different package", () => {
     const b = server$(a);
     console.log(b);
   `
-  expect(transform(source, "server$")).toBe(expected)
+  expect(transform(source, { ssr: false })).toBe(expected)
 })
