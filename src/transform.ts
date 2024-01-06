@@ -1,7 +1,4 @@
-import generate from "@babel/generator"
-import { parse } from "@babel/parser"
-import traverse, { NodePath } from "@babel/traverse"
-import * as t from "@babel/types"
+import { generate, parse, traverse, t, type NodePath } from "./babel"
 
 import { name as pkgName } from "../package.json"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"

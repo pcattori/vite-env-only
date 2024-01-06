@@ -1,10 +1,12 @@
 // Adapted from https://github.com/egoist/babel-plugin-eliminator/blob/d29859396b7708b7f7abbacdd951cbbc80902f00/src/index.ts
 
-import type { NodePath } from "@babel/traverse"
-import type { types as BabelTypes } from "@babel/core"
-import { ParseResult } from "@babel/parser"
-import * as t from "@babel/types"
-import traverse from "@babel/traverse"
+import {
+  traverse,
+  t,
+  type NodePath,
+  type BabelTypes,
+  ParseResult,
+} from "./babel"
 
 function getIdentifier(
   path: NodePath<
