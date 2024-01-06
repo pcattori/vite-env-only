@@ -44,6 +44,9 @@
   "prettier": {
     "semi": false
   },
+  "files": [
+    "dist"
+  ],
   "release": {
     "branches": [
       "main"
