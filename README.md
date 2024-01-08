@@ -27,7 +27,7 @@ export default defineConfig({
 ### `server$`
 
 ```ts
-declare const server$: <T>(x: T) => T | undefined
+declare const server$: <T>(_: T) => T | undefined
 ```
 
 Marks an expression as server-only and replaces it with `undefined` on the client.
@@ -54,7 +54,7 @@ export const message = undefined
 ### `client$`
 
 ```ts
-declare const client$: <T>(x: T) => T | undefined
+declare const client$: <T>(_: T) => T | undefined
 ```
 
 Marks an expression as client-only and replaces it with `undefined` on the server.
