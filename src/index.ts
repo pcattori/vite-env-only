@@ -1,3 +1,5 @@
+import type { Plugin } from "vite"
+
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
@@ -15,12 +17,12 @@ export const server$ = maybe
  */
 export const client$ = maybe
 
-export default () => {
+export default (): Plugin => {
   return {
     name: "vite-plugin-env-only",
-    async transform(code: string, _: unknown, options: { ssr?: boolean }) {
+    async transform(code, _, options) {
       if (code.includes(pkgName)) {
-        return transform(code, { ssr: options.ssr === true })
+        return transform(code, { ssr: options?.ssr === true })
       }
     },
   }
