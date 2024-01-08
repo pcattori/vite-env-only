@@ -1,6 +1,6 @@
 # vite-env-only
 
-Vite plugin that provides macros for client-only and server-only code.
+Minimal vite plugin for environment isolation via macros for client-only and server-only code.
 
 ## Installation
 
@@ -115,3 +115,29 @@ const clientValue = clientDep() + 1
 export const serverThing = undefined
 export const clientThing = client$(clientValue)
 ```
+
+## Why?
+
+Vite already provides [`import.meta.env.SSR`][vite-env-vars] which works in a similar way to this plugin in production.
+However, in development Vite neither substitutes `import.meta.env.SSR` nor performs dead-code elimination as Vite considers these to be optimizations.
+
+In general, its a bad idea to rely on optimizations for correctness.
+In contrast, this plugin considers substitution and dead-code elimination to be part of its feature set.
+
+Additionally, this plugin uses function calls to mark expressions as server-only or client-only.
+That means it can _guarantee_ that code within its macros never ends up in the wrong environment while only transforming a single AST node type: function call expressions.
+
+`import.meta.env.SSR` is instead a special identifier which can show up in many different AST node types: `if` statements, ternaries, `switch` statements, etc. which makes it easy to miss edge cases during dead-code elimination.
+
+## Prior art
+
+Thanks to these project for exploring environment isolation and transpilation conventions:
+
+- [`esm-env`][esm-env]
+- [Qwik][qwik]
+- [TanStack `bling`][bling]
+
+[vite-env-vars]: https://vitejs.dev/guide/env-and-mode#env-variables
+[esm-env]: https://github.com/benmccann/esm-env
+[qwik]: https://qwik.builder.io/
+[bling]: https://github.com/TanStack/bling
