@@ -5,7 +5,7 @@ Vite plugin that provides macros for client-only and server-only code.
 ## Installation
 
 ```sh
-npm install vite-env-only
+npm install -D vite-env-only
 ```
 
 ```ts
