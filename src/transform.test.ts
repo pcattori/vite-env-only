@@ -88,3 +88,31 @@ describe("complex", () => {
     expect(transform(source, { ssr: false })).toBe(expected)
   })
 })
+
+test("exactly one argument / server$", () => {
+  const source = dedent`
+    import { server$ } from "${pkgName}"
+
+    export const message = server$()
+  `
+  expect(() => transform(source, { ssr: false })).toThrow(
+    "'server$' must take exactly one argument",
+  )
+  expect(() => transform(source, { ssr: true })).toThrow(
+    "'server$' must take exactly one argument",
+  )
+})
+
+test("exactly one argument / client$", () => {
+  const source = dedent`
+    import { client$ } from "${pkgName}"
+
+    export const message = client$()
+  `
+  expect(() => transform(source, { ssr: false })).toThrow(
+    "'client$' must take exactly one argument",
+  )
+  expect(() => transform(source, { ssr: true })).toThrow(
+    "'client$' must take exactly one argument",
+  )
+})
