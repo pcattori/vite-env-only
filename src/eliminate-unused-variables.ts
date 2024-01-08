@@ -1,12 +1,9 @@
 // Adapted from https://github.com/egoist/babel-plugin-eliminator/blob/d29859396b7708b7f7abbacdd951cbbc80902f00/src/index.ts
 
-import {
-  traverse,
-  t,
-  type NodePath,
-  type BabelTypes,
-  ParseResult,
-} from "./babel"
+import type { types as BabelTypes } from "@babel/core"
+import * as t from "@babel/types"
+
+import { traverse, type NodePath } from "./babel-traverse"
 
 function getIdentifier(
   path: NodePath<
@@ -60,7 +57,7 @@ function isIdentifierReferenced(
   return false
 }
 
-export const eliminateUnusedVariables = (ast: ParseResult<BabelTypes.File>) => {
+export const eliminateUnusedVariables = (ast: BabelTypes.File) => {
   let referencesRemovedInThisPass: number
 
   let sweepFunction = (

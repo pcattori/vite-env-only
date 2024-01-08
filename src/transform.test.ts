@@ -13,14 +13,14 @@ describe("server$", () => {
 
   test("ssr:true", () => {
     const expected = dedent`
-      export const message = "server only";
+      export const message = "server only"
     `
     expect(transform(source, { ssr: true })).toBe(expected)
   })
 
   test("ssr:false", () => {
     const expected = dedent`
-      export const message = undefined;
+      export const message = undefined
     `
     expect(transform(source, { ssr: false })).toBe(expected)
   })
@@ -35,14 +35,14 @@ describe("client$", () => {
 
   test("ssr:true", () => {
     const expected = dedent`
-      export const message = undefined;
+      export const message = undefined
     `
     expect(transform(source, { ssr: true })).toBe(expected)
   })
 
   test("ssr:false", () => {
     const expected = dedent`
-      export const message = "client only";
+      export const message = "client only"
     `
     expect(transform(source, { ssr: false })).toBe(expected)
   })
@@ -65,25 +65,29 @@ describe("complex", () => {
 
   test("ssr:true", () => {
     const expected = dedent`
-      import { a } from "server-only";
-      export const c = "server only";
-      const d = a;
-      console.log(d);
-      export const e = undefined;
-      const f = undefined;
-      console.log(f);
+      import { a } from "server-only"
+
+      export const c = "server only"
+      const d = a
+      console.log(d)
+
+      export const e = undefined
+      const f = undefined
+      console.log(f)
     `
     expect(transform(source, { ssr: true })).toBe(expected)
   })
   test("ssr:false", () => {
     const expected = dedent`
-      import { b } from "client-only";
-      export const c = undefined;
-      const d = undefined;
-      console.log(d);
-      export const e = "client only";
-      const f = b;
-      console.log(f);
+      import { b } from "client-only"
+
+      export const c = undefined
+      const d = undefined
+      console.log(d)
+
+      export const e = "client only"
+      const f = b
+      console.log(f)
     `
     expect(transform(source, { ssr: false })).toBe(expected)
   })

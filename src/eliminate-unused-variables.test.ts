@@ -1,8 +1,7 @@
 import { expect, test } from "vitest"
-import { parse } from "@babel/parser"
-import generate from "@babel/generator"
 import dedent from "dedent"
 
+import { generate, parse } from "./babel-recast"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"
 
 const dce = (source: string): string => {
@@ -16,7 +15,7 @@ test("imports / bare", () => {
     import "side-effect"
   `
   const expected = dedent`
-    import "side-effect";
+    import "side-effect"
   `
   expect(dce(source)).toBe(expected)
 })
@@ -29,7 +28,7 @@ test("imports / named", () => {
   `
   const expected = dedent`
     import { a } from "named";
-    console.log(a);
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -41,8 +40,8 @@ test("imports / default", () => {
     console.log(a)
   `
   const expected = dedent`
-    import a from "default-used";
-    console.log(a);
+    import a from "default-used"
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -54,8 +53,8 @@ test("imports / namespace", () => {
     console.log(a)
   `
   const expected = dedent`
-    import * as a from "namespace-used";
-    console.log(a);
+    import * as a from "namespace-used"
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -71,7 +70,7 @@ test("function / declaration", () => {
   `
   const expected = dedent`
     export function a() {
-      return;
+      return
     }
   `
   expect(dce(source)).toBe(expected)
@@ -88,8 +87,8 @@ test("function / expression", () => {
   `
   const expected = dedent`
     export const a = function () {
-      return;
-    };
+      return
+    }
   `
   expect(dce(source)).toBe(expected)
 })
@@ -105,8 +104,8 @@ test("function / arrow", () => {
   `
   const expected = dedent`
     export const a = () => {
-      return;
-    };
+      return
+    }
   `
   expect(dce(source)).toBe(expected)
 })
@@ -118,8 +117,8 @@ test("variable / identifier", () => {
     console.log(a)
   `
   const expected = dedent`
-    const a = "a";
-    console.log(a);
+    const a = "a"
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -130,8 +129,8 @@ test("variable / array pattern", () => {
     console.log(a)
   `
   const expected = dedent`
-    const [a] = c;
-    console.log(a);
+    const [a] = c
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -144,8 +143,8 @@ test("variable / object pattern", () => {
   const expected = dedent`
     const {
       a
-    } = c;
-    console.log(a);
+    } = c
+    console.log(a)
   `
   expect(dce(source)).toBe(expected)
 })
@@ -176,8 +175,8 @@ test("repeated elimination", () => {
     console.log("k")
   `
   const expected = dedent`
-    export const j = "j";
-    console.log("k");
+    export const j = "j"
+    console.log("k")
   `
   expect(dce(source)).toBe(expected)
 })

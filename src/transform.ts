@@ -1,6 +1,8 @@
-import { generate, parse, traverse, t, type NodePath } from "./babel"
+import * as t from "@babel/types"
 
 import { name as pkgName } from "../package.json"
+import { traverse, type NodePath } from "./babel-traverse"
+import { generate, parse } from "./babel-recast"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"
 
 const isMacro = (path: NodePath<t.CallExpression>, name: string) => {
