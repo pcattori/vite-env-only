@@ -11,10 +11,10 @@ npm install -D vite-env-only
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite"
-import EnvOnly from "vite-env-only"
+import envOnly from "vite-env-only"
 
 export default defineConfig({
-  plugins: [EnvOnly()],
+  plugins: [envOnly()],
 })
 ```
 
