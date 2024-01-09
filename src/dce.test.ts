@@ -3,11 +3,11 @@ import { parse } from "@babel/parser"
 import generate from "@babel/generator"
 import dedent from "dedent"
 
-import { eliminateUnusedVariables } from "./eliminate-unused-variables"
+import { eliminateUnreferencedIdentifiers } from "./dce"
 
 const dce = (source: string): string => {
   let ast = parse(source, { sourceType: "module" })
-  eliminateUnusedVariables(ast)
+  eliminateUnreferencedIdentifiers(ast)
   return generate(ast).code
 }
 

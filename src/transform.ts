@@ -9,7 +9,10 @@ import {
 } from "./babel"
 
 import { name as pkgName } from "../package.json"
-import { eliminateUnusedVariables } from "./eliminate-unused-variables"
+import {
+  findReferencedIdentifiers,
+  eliminateUnreferencedIdentifiers,
+} from "./dce"
 
 const isMacroBinding = (binding: Binding, macro: string): boolean => {
   // import source
@@ -47,16 +50,18 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
   // @ts-expect-error `@types/babel__core` is missing types for `File`
   new babel.File({ filename: undefined }, { code, ast })
 
+  const refs = findReferencedIdentifiers(ast)
+
   traverse(ast, {
     CallExpression(path) {
       // env does not match
       // `macro$(expr)` -> `undefined`
-      if (isMacro(path, options.ssr ? "client$" : "server$")) {
+      if (isMacro(path, options.ssr ? "clientOnly$" : "serverOnly$")) {
         path.replaceWith(t.identifier("undefined"))
       }
       // env matches
       // `macro$(expr)` -> `expr`
-      if (isMacro(path, options.ssr ? "server$" : "client$")) {
+      if (isMacro(path, options.ssr ? "serverOnly$" : "clientOnly$")) {
         let arg = path.node.arguments[0]
         if (t.isExpression(arg)) {
           path.replaceWith(arg)
@@ -71,8 +76,8 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
       let binding = path.scope.getBinding(path.node.name)
       if (!binding) return
       if (
-        !isMacroBinding(binding, "server$") &&
-        !isMacroBinding(binding, "client$")
+        !isMacroBinding(binding, "serverOnly$") &&
+        !isMacroBinding(binding, "clientOnly$")
       ) {
         return
       }
@@ -96,6 +101,6 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
       })
     },
   })
-  eliminateUnusedVariables(ast)
+  eliminateUnreferencedIdentifiers(ast, refs)
   return generate(ast).code
 }

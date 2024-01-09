@@ -15,10 +15,10 @@ const maybe = <T>(_: T): T | undefined => {
  * On the server, replaced with the value passed in.
  * On the client, replaced with `undefined`.
  */
-export const server$ = maybe
+export const serverOnly$ = maybe
 
 /**
  * On the client, replaced with the value passed in.
  * On the server, replaced with `undefined`.
  */
-export const client$ = maybe
+export const clientOnly$ = maybe
