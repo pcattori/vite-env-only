@@ -144,3 +144,16 @@ for (const macro of macros) {
     )
   })
 }
+
+test("no namespace import", () => {
+  const source = dedent`
+    import * as envOnly from "${pkgName}"
+
+    export const message = envOnly.server$("server only")
+  `
+  for (const ssr of [false, true]) {
+    expect(() => transform(source, { ssr })).toThrow(
+      `Namespace import is not supported by '${pkgName}'`,
+    )
+  }
+})
