@@ -94,16 +94,15 @@ describe("complex", () => {
 for (const macro of macros) {
   test(`exactly one argument / ${macro}`, () => {
     const source = dedent`
-    import { ${macro} } from "${pkgName}"
+      import { ${macro} } from "${pkgName}"
 
-    export const message = ${macro}()
-  `
-    expect(() => transform(source, { ssr: false })).toThrow(
-      `'${macro}' must take exactly one argument`,
-    )
-    expect(() => transform(source, { ssr: true })).toThrow(
-      `'${macro}' must take exactly one argument`,
-    )
+      export const message = ${macro}()
+    `
+    for (const ssr of [false, true]) {
+      expect(() => transform(source, { ssr })).toThrow(
+        `'${macro}' must take exactly one argument`,
+      )
+    }
   })
 }
 
@@ -130,18 +129,17 @@ for (const macro of macros) {
 for (const macro of macros) {
   test(`no dynamic / ${macro}`, () => {
     const source = dedent`
-    import { ${macro} as x } from "${pkgName}"
+      import { ${macro} as x } from "${pkgName}"
 
-    const z = x
+      const z = x
 
-    export const message = z("server only")
-  `
-    expect(() => transform(source, { ssr: false })).toThrow(
-      "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
-    )
-    expect(() => transform(source, { ssr: true })).toThrow(
-      "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
-    )
+      export const message = z("server only")
+    `
+    for (const ssr of [false, true]) {
+      expect(() => transform(source, { ssr })).toThrow(
+        "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
+      )
+    }
   })
 }
 
