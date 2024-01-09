@@ -4,7 +4,7 @@ import dedent from "dedent"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
-const macros = ["server$", "client$"]
+const macros = ["server$", "client$"] as const
 
 describe("server$", () => {
   const source = dedent`
@@ -91,61 +91,41 @@ describe("complex", () => {
   })
 })
 
-test("exactly one argument / server$", () => {
-  const source = dedent`
-    import { server$ } from "${pkgName}"
+for (const macro of macros) {
+  test(`exactly one argument / ${macro}`, () => {
+    const source = dedent`
+    import { ${macro} } from "${pkgName}"
 
-    export const message = server$()
+    export const message = ${macro}()
   `
-  expect(() => transform(source, { ssr: false })).toThrow(
-    "'server$' must take exactly one argument",
-  )
-  expect(() => transform(source, { ssr: true })).toThrow(
-    "'server$' must take exactly one argument",
-  )
-})
+    expect(() => transform(source, { ssr: false })).toThrow(
+      `'${macro}' must take exactly one argument`,
+    )
+    expect(() => transform(source, { ssr: true })).toThrow(
+      `'${macro}' must take exactly one argument`,
+    )
+  })
+}
 
-test("exactly one argument / client$", () => {
-  const source = dedent`
-    import { client$ } from "${pkgName}"
+for (const macro of macros) {
+  test(`alias / ${macro}`, () => {
+    const source = dedent`
+      import { ${macro} as x } from "${pkgName}"
 
-    export const message = client$()
-  `
-  expect(() => transform(source, { ssr: false })).toThrow(
-    "'client$' must take exactly one argument",
-  )
-  expect(() => transform(source, { ssr: true })).toThrow(
-    "'client$' must take exactly one argument",
-  )
-})
-
-test("alias / server$", () => {
-  const source = dedent`
-    import { server$ as x } from "${pkgName}"
-
-    export const message = x("server only")
-  `
-  expect(transform(source, { ssr: false })).toBe(dedent`
-    export const message = undefined;
-  `)
-  expect(transform(source, { ssr: true })).toBe(dedent`
-    export const message = "server only";
-  `)
-})
-
-test("alias / client$", () => {
-  const source = dedent`
-    import { client$ as y } from "${pkgName}"
-
-    export const message = y("client only")
-  `
-  expect(transform(source, { ssr: false })).toBe(dedent`
-    export const message = "client only";
-  `)
-  expect(transform(source, { ssr: true })).toBe(dedent`
-    export const message = undefined;
-  `)
-})
+      export const message = x("hello")
+    `
+    expect(transform(source, { ssr: false })).toBe(
+      macro === "server$"
+        ? `export const message = undefined;`
+        : `export const message = "hello";`,
+    )
+    expect(transform(source, { ssr: true })).toBe(
+      macro === "server$"
+        ? `export const message = "hello";`
+        : `export const message = undefined;`,
+    )
+  })
+}
 
 for (const macro of macros) {
   test(`no dynamic / ${macro}`, () => {
