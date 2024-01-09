@@ -116,3 +116,31 @@ test("exactly one argument / client$", () => {
     "'client$' must take exactly one argument",
   )
 })
+
+test("alias / server$", () => {
+  const source = dedent`
+    import { server$ as x } from "${pkgName}"
+
+    export const message = x("server only")
+  `
+  expect(transform(source, { ssr: false })).toBe(dedent`
+    export const message = undefined;
+  `)
+  expect(transform(source, { ssr: true })).toBe(dedent`
+    export const message = "server only";
+  `)
+})
+
+test("alias / client$", () => {
+  const source = dedent`
+    import { client$ as y } from "${pkgName}"
+
+    export const message = y("client only")
+  `
+  expect(transform(source, { ssr: false })).toBe(dedent`
+    export const message = "client only";
+  `)
+  expect(transform(source, { ssr: true })).toBe(dedent`
+    export const message = undefined;
+  `)
+})
