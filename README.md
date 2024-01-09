@@ -1,6 +1,8 @@
+![ci workflow](https://github.com/pcattori/vite-env-only/actions/workflows/ci.yml/badge.svg)
+
 # vite-env-only
 
-Minimal vite plugin for environment isolation via macros for client-only and server-only code.
+Minimal Vite plugin for environment isolation via macros for client-only and server-only code.
 
 ## Install
 
