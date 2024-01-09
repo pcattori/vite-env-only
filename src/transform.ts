@@ -1,13 +1,17 @@
 import * as babel from "@babel/core"
-import { generate, parse, traverse, t, type NodePath } from "./babel"
+import {
+  generate,
+  parse,
+  traverse,
+  t,
+  type NodePath,
+  type Binding,
+} from "./babel"
 
 import { name as pkgName } from "../package.json"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"
 
-const isMacro = (path: NodePath<t.CallExpression>, name: string) => {
-  if (!t.isIdentifier(path.node.callee)) return false
-  let binding = path.scope.getBinding(path.node.callee.name)
-
+const isMacroBinding = (binding: Binding, macro: string): boolean => {
   // import source
   if (!t.isImportDeclaration(binding?.path.parent)) return false
   if (binding.path.parent.source.value !== pkgName) return false
@@ -16,10 +20,19 @@ const isMacro = (path: NodePath<t.CallExpression>, name: string) => {
   if (!t.isImportSpecifier(binding?.path.node)) return false
   let { imported } = binding.path.node
   if (!t.isIdentifier(imported)) return false
-  if (imported.name !== name) return false
+  if (imported.name !== macro) return false
+  return true
+}
+
+const isMacro = (path: NodePath<t.CallExpression>, macro: string) => {
+  if (!t.isIdentifier(path.node.callee)) return false
+  let binding = path.scope.getBinding(path.node.callee.name)
+
+  if (!binding) return false
+  if (!isMacroBinding(binding, macro)) return false
 
   if (path.node.arguments.length !== 1) {
-    throw path.buildCodeFrameError(`'${name}' must take exactly one argument`)
+    throw path.buildCodeFrameError(`'${macro}' must take exactly one argument`)
   }
   return true
 }
@@ -49,6 +62,22 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
           path.replaceWith(arg)
         }
       }
+    },
+    Identifier(path) {
+      if (t.isImportSpecifier(path.parent)) return
+
+      let binding = path.scope.getBinding(path.node.name)
+      if (!binding) return
+      if (
+        !isMacroBinding(binding, "server$") &&
+        !isMacroBinding(binding, "client$")
+      ) {
+        return
+      }
+      if (t.isImportSpecifier(path.parent)) return
+      throw path.buildCodeFrameError(
+        `'${path.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`,
+      )
     },
   })
   eliminateUnusedVariables(ast)

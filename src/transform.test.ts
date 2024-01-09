@@ -4,6 +4,8 @@ import dedent from "dedent"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
+const macros = ["server$", "client$"]
+
 describe("server$", () => {
   const source = dedent`
     import { server$ } from "${pkgName}"
@@ -144,3 +146,21 @@ test("alias / client$", () => {
     export const message = undefined;
   `)
 })
+
+for (const macro of macros) {
+  test(`no dynamic / ${macro}`, () => {
+    const source = dedent`
+    import { ${macro} as x } from "${pkgName}"
+
+    const z = x
+
+    export const message = z("server only")
+  `
+    expect(() => transform(source, { ssr: false })).toThrow(
+      "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
+    )
+    expect(() => transform(source, { ssr: true })).toThrow(
+      "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
+    )
+  })
+}
