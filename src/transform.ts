@@ -56,12 +56,12 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
     CallExpression(path) {
       // env does not match
       // `macro$(expr)` -> `undefined`
-      if (isMacro(path, options.ssr ? "client$" : "server$")) {
+      if (isMacro(path, options.ssr ? "clientOnly$" : "serverOnly$")) {
         path.replaceWith(t.identifier("undefined"))
       }
       // env matches
       // `macro$(expr)` -> `expr`
-      if (isMacro(path, options.ssr ? "server$" : "client$")) {
+      if (isMacro(path, options.ssr ? "serverOnly$" : "clientOnly$")) {
         let arg = path.node.arguments[0]
         if (t.isExpression(arg)) {
           path.replaceWith(arg)
@@ -76,8 +76,8 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
       let binding = path.scope.getBinding(path.node.name)
       if (!binding) return
       if (
-        !isMacroBinding(binding, "server$") &&
-        !isMacroBinding(binding, "client$")
+        !isMacroBinding(binding, "serverOnly$") &&
+        !isMacroBinding(binding, "clientOnly$")
       ) {
         return
       }

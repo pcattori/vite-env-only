@@ -3,7 +3,7 @@ import type { Plugin } from "vite"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
-export { server$, client$ } from "./macro"
+export { serverOnly$, clientOnly$ } from "./macro"
 
 export default (): Plugin => {
   return {

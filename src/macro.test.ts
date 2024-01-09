@@ -1,8 +1,8 @@
 import { expect, test } from "vitest"
 
-import { server$, client$ } from "./macro"
+import { serverOnly$, clientOnly$ } from "./macro"
 
 test("unreplaced macro throws error", () => {
-  expect(() => server$("hello")).toThrowError(/unreplaced macro/)
-  expect(() => client$("world")).toThrowError(/unreplaced macro/)
+  expect(() => serverOnly$("hello")).toThrowError(/unreplaced macro/)
+  expect(() => clientOnly$("world")).toThrowError(/unreplaced macro/)
 })

@@ -4,13 +4,13 @@ import dedent from "dedent"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
-const macros = ["server$", "client$"] as const
+const macros = ["serverOnly$", "clientOnly$"] as const
 
-describe("server$", () => {
+describe("serverOnly$", () => {
   const source = dedent`
-    import { server$ } from "${pkgName}"
+    import { serverOnly$ } from "${pkgName}"
 
-    export const message = server$("server only")
+    export const message = serverOnly$("server only")
   `
 
   test("ssr:true", () => {
@@ -28,11 +28,11 @@ describe("server$", () => {
   })
 })
 
-describe("client$", () => {
+describe("clientOnly$", () => {
   const source = dedent`
-    import { client$ } from "${pkgName}"
+    import { clientOnly$ } from "${pkgName}"
 
-    export const message = client$("client only")
+    export const message = clientOnly$("client only")
   `
 
   test("ssr:true", () => {
@@ -52,16 +52,16 @@ describe("client$", () => {
 
 describe("complex", () => {
   const source = dedent`
-    import { server$, client$ } from "${pkgName}"
+    import { serverOnly$, clientOnly$ } from "${pkgName}"
     import { a } from "server-only"
     import { b } from "client-only"
 
-    export const c = server$("server only")
-    const d = server$(a)
+    export const c = serverOnly$("server only")
+    const d = serverOnly$(a)
     console.log(d)
 
-    export const e = client$("client only")
-    const f = client$(b)
+    export const e = clientOnly$("client only")
+    const f = clientOnly$(b)
     console.log(f)
   `
 
@@ -114,12 +114,12 @@ for (const macro of macros) {
       export const message = x("hello")
     `
     expect(transform(source, { ssr: false })).toBe(
-      macro === "server$"
+      macro === "serverOnly$"
         ? `export const message = undefined;`
         : `export const message = "hello";`,
     )
     expect(transform(source, { ssr: true })).toBe(
-      macro === "server$"
+      macro === "serverOnly$"
         ? `export const message = "hello";`
         : `export const message = undefined;`,
     )
@@ -147,7 +147,7 @@ test("no namespace import", () => {
   const source = dedent`
     import * as envOnly from "${pkgName}"
 
-    export const message = envOnly.server$("server only")
+    export const message = envOnly.serverOnly$("server only")
   `
   for (const ssr of [false, true]) {
     expect(() => transform(source, { ssr })).toThrow(
@@ -173,8 +173,8 @@ test("only eliminate newly unreferenced identifiers", () => {
       const _compute = () => 1;
       const _b = _compute();
     `
-    expect(transform(source, { ssr: macro === "server$" ? false : true })).toBe(
-      expected,
-    )
+    expect(
+      transform(source, { ssr: macro === "serverOnly$" ? false : true }),
+    ).toBe(expected)
   }
 })
