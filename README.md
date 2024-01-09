@@ -76,13 +76,14 @@ export const message = "i only exist on the client"
 
 ## Dead-code elimination
 
-After macro replacement, this plugin eliminates any unused variables.
+This plugin eliminates any identifiers that become unreferenced as a result of macro replacement.
 
 ```ts
 import { server$, client$ } from "vite-env-only"
 import { serverDep } from "server-dep"
 import { clientDep } from "client-dep"
 
+const alreadyUnreferenced = "so this sticks around"
 const serverValue = serverDep() + 1
 const clientValue = clientDep() + 1
 
@@ -95,6 +96,7 @@ On the server (`ssr: true`), this produces:
 ```ts
 import { serverDep } from "server-dep"
 
+const alreadyUnreferenced = "so this sticks around"
 const serverValue = serverDep() + 1
 
 export const serverThing = server$(serverValue)
@@ -106,6 +108,7 @@ On the client (`ssr: false`), this produces:
 ```ts
 import { clientDep } from "client-dep"
 
+const alreadyUnreferenced = "so this sticks around"
 const clientValue = clientDep() + 1
 
 export const serverThing = undefined

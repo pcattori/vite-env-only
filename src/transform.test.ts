@@ -155,3 +155,26 @@ test("no namespace import", () => {
     )
   }
 })
+
+test("only eliminate newly unreferenced identifiers", () => {
+  for (const macro of macros) {
+    const source = dedent`
+      import { ${macro} } from "${pkgName}"
+      import { dep } from "dep"
+
+      const compute = () => dep() + 1
+      export const a = ${macro}(compute())
+
+      const _compute = () => 1
+      const _b = _compute()
+    `
+    const expected = dedent`
+      export const a = undefined;
+      const _compute = () => 1;
+      const _b = _compute();
+    `
+    expect(transform(source, { ssr: macro === "server$" ? false : true })).toBe(
+      expected,
+    )
+  }
+})

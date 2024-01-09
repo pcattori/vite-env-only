@@ -9,7 +9,10 @@ import {
 } from "./babel"
 
 import { name as pkgName } from "../package.json"
-import { eliminateUnusedVariables } from "./eliminate-unused-variables"
+import {
+  findReferencedIdentifiers,
+  eliminateUnreferencedIdentifiers,
+} from "./dce"
 
 const isMacroBinding = (binding: Binding, macro: string): boolean => {
   // import source
@@ -46,6 +49,8 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
   // - https://github.com/babel/babel/issues/11350#issuecomment-606169054
   // @ts-expect-error `@types/babel__core` is missing types for `File`
   new babel.File({ filename: undefined }, { code, ast })
+
+  const refs = findReferencedIdentifiers(ast)
 
   traverse(ast, {
     CallExpression(path) {
@@ -96,6 +101,6 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
       })
     },
   })
-  eliminateUnusedVariables(ast)
+  eliminateUnreferencedIdentifiers(ast, refs)
   return generate(ast).code
 }
