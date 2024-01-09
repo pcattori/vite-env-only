@@ -11,7 +11,7 @@ const dce = (source: string): string => {
   return generate(ast).code
 }
 
-test("imports / bare", () => {
+test("imports / side-effect", () => {
   const source = dedent`
     import "side-effect"
   `

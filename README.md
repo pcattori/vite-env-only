@@ -20,10 +20,6 @@ export default defineConfig({
 
 ## Macros
 
-> [!WARNING]
-> Macros must appear verbatim as `server$` and `client$` in the source code.
-> If you assign different names to the macros, this plugin will not work.
-
 ### `server$`
 
 ```ts

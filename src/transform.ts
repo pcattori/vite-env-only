@@ -5,10 +5,19 @@ import { name as pkgName } from "../package.json"
 import { eliminateUnusedVariables } from "./eliminate-unused-variables"
 
 const isMacro = (path: NodePath<t.CallExpression>, name: string) => {
-  if (!t.isIdentifier(path.node.callee, { name })) return false
-  let binding = path.scope.getBinding(name)
+  if (!t.isIdentifier(path.node.callee)) return false
+  let binding = path.scope.getBinding(path.node.callee.name)
+
+  // import source
   if (!t.isImportDeclaration(binding?.path.parent)) return false
   if (binding.path.parent.source.value !== pkgName) return false
+
+  // import specifier
+  if (!t.isImportSpecifier(binding?.path.node)) return false
+  let { imported } = binding.path.node
+  if (!t.isIdentifier(imported)) return false
+  if (imported.name !== name) return false
+
   if (path.node.arguments.length !== 1) {
     throw path.buildCodeFrameError(`'${name}' must take exactly one argument`)
   }
