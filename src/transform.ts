@@ -63,6 +63,8 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
         }
       }
     },
+
+    // ensure that macros are not manipulated at runtime
     Identifier(path) {
       if (t.isImportSpecifier(path.parent)) return
 
@@ -78,6 +80,20 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
       throw path.buildCodeFrameError(
         `'${path.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`,
       )
+    },
+
+    // ensure that macros are not imported via namespace
+    ImportDeclaration(path) {
+      if (path.node.source.value !== pkgName) return
+      path.node.specifiers.forEach((specifier, i) => {
+        if (t.isImportNamespaceSpecifier(specifier)) {
+          const subpath = path.get(`specifiers.${i}`)
+          if (Array.isArray(subpath)) throw new Error("unreachable")
+          throw subpath.buildCodeFrameError(
+            `Namespace import is not supported by '${pkgName}'`,
+          )
+        }
+      })
     },
   })
   eliminateUnusedVariables(ast)
