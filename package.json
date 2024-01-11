@@ -15,11 +15,12 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "scripts": {
     "typecheck": "tsc",
-    "build": "tsup src/index.ts --dts --format esm",
+    "build": "tsup src/index.ts --dts --format esm,cjs --shims",
     "test": "vitest"
   },
   "packageManager": "pnpm@8.13.1",
