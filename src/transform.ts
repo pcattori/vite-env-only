@@ -6,6 +6,7 @@ import {
   t,
   type NodePath,
   type Binding,
+  type GeneratorResult,
 } from "./babel"
 
 import { name as pkgName } from "../package.json"
@@ -40,7 +41,11 @@ const isMacro = (path: NodePath<t.CallExpression>, macro: string) => {
   return true
 }
 
-export const transform = (code: string, options: { ssr: boolean }): string => {
+export const transform = (
+  code: string,
+  id: string,
+  options: { ssr: boolean },
+): GeneratorResult => {
   let ast = parse(code, { sourceType: "module" })
 
   // Workaround for `path.buildCodeFrameError`
@@ -102,5 +107,5 @@ export const transform = (code: string, options: { ssr: boolean }): string => {
     },
   })
   eliminateUnreferencedIdentifiers(ast, refs)
-  return generate(ast).code
+  return generate(ast, { sourceMaps: true, sourceFileName: id }, code)
 }
