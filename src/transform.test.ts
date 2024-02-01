@@ -17,14 +17,14 @@ describe("serverOnly$", () => {
     const expected = dedent`
       export const message = "server only";
     `
-    expect(transform(source, { ssr: true })).toBe(expected)
+    expect(transform(source, "", { ssr: true }).code).toBe(expected)
   })
 
   test("ssr:false", () => {
     const expected = dedent`
       export const message = undefined;
     `
-    expect(transform(source, { ssr: false })).toBe(expected)
+    expect(transform(source, "", { ssr: false }).code).toBe(expected)
   })
 })
 
@@ -39,14 +39,14 @@ describe("clientOnly$", () => {
     const expected = dedent`
       export const message = undefined;
     `
-    expect(transform(source, { ssr: true })).toBe(expected)
+    expect(transform(source, "", { ssr: true }).code).toBe(expected)
   })
 
   test("ssr:false", () => {
     const expected = dedent`
       export const message = "client only";
     `
-    expect(transform(source, { ssr: false })).toBe(expected)
+    expect(transform(source, "", { ssr: false }).code).toBe(expected)
   })
 })
 
@@ -75,7 +75,7 @@ describe("complex", () => {
       const f = undefined;
       console.log(f);
     `
-    expect(transform(source, { ssr: true })).toBe(expected)
+    expect(transform(source, "", { ssr: true }).code).toBe(expected)
   })
   test("ssr:false", () => {
     const expected = dedent`
@@ -87,7 +87,7 @@ describe("complex", () => {
       const f = b;
       console.log(f);
     `
-    expect(transform(source, { ssr: false })).toBe(expected)
+    expect(transform(source, "", { ssr: false }).code).toBe(expected)
   })
 })
 
@@ -99,7 +99,7 @@ for (const macro of macros) {
       export const message = ${macro}()
     `
     for (const ssr of [false, true]) {
-      expect(() => transform(source, { ssr })).toThrow(
+      expect(() => transform(source, "", { ssr })).toThrow(
         `'${macro}' must take exactly one argument`,
       )
     }
@@ -113,12 +113,12 @@ for (const macro of macros) {
 
       export const message = x("hello")
     `
-    expect(transform(source, { ssr: false })).toBe(
+    expect(transform(source, "", { ssr: false }).code).toBe(
       macro === "serverOnly$"
         ? `export const message = undefined;`
         : `export const message = "hello";`,
     )
-    expect(transform(source, { ssr: true })).toBe(
+    expect(transform(source, "", { ssr: true }).code).toBe(
       macro === "serverOnly$"
         ? `export const message = "hello";`
         : `export const message = undefined;`,
@@ -136,7 +136,7 @@ for (const macro of macros) {
       export const message = z("server only")
     `
     for (const ssr of [false, true]) {
-      expect(() => transform(source, { ssr })).toThrow(
+      expect(() => transform(source, "", { ssr })).toThrow(
         "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
       )
     }
@@ -151,7 +151,7 @@ test("no namespace import", () => {
       export const message = envOnly.${macro}("server only")
     `
     for (const ssr of [false, true]) {
-      expect(() => transform(source, { ssr })).toThrow(
+      expect(() => transform(source, "", { ssr })).toThrow(
         `Namespace import is not supported by '${pkgName}'`,
       )
     }
@@ -176,7 +176,8 @@ test("only eliminate newly unreferenced identifiers", () => {
       const _b = _compute();
     `
     expect(
-      transform(source, { ssr: macro === "serverOnly$" ? false : true }),
+      transform(source, "", { ssr: macro === "serverOnly$" ? false : true })
+        .code,
     ).toBe(expected)
   }
 })
