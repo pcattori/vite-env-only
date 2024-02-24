@@ -6,7 +6,7 @@ const maybe = <T>(_: T): T | undefined => {
       `${pkgName}: unreplaced macro`,
       "",
       `Did you forget to add the '${pkgName}' plugin to your Vite config?`,
-      "👉 https://github.com/pcattori/vite-env-only?tab=readme-ov-file#installation",
+      "👉 https://github.com/pcattori/vite-env-only#install",
     ].join("\n"),
   )
 }
