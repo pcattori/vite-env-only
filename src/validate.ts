@@ -18,11 +18,11 @@ export function validateId({
   env: Env
 }): void {
   entries(imports).forEach(([key, validators]) => {
-    if (key === env || !validators) {
+    if (key === env || !validators || !validators.length) {
       return
     }
 
-    validators.forEach((validator) => {
+    for (const validator of validators) {
       if (
         (typeof validator === "string" && validator === id) ||
         (validator instanceof RegExp && id.match(validator))
@@ -33,7 +33,7 @@ export function validateId({
           } is not allowed in the ${env} module graph`
         )
       }
-    })
+    }
   })
 }
 

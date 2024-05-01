@@ -8,7 +8,7 @@ export { serverOnly$, clientOnly$ } from "./macro"
 
 type Options = { imports?: ImportValidators }
 
-export default ({ imports = {} }: Options = {}): Plugin => {
+export default ({ imports }: Options = {}): Plugin => {
   let root: string
 
   return {
@@ -16,15 +16,17 @@ export default ({ imports = {} }: Options = {}): Plugin => {
     configResolved(config) {
       root = config.root
     },
-    resolveId(id, importer, options) {
-      validateId({
-        id,
-        imports,
-        root,
-        importer,
-        env: options?.ssr ? "server" : "client",
-      })
-    },
+    resolveId: imports
+      ? (id, importer, options) => {
+          validateId({
+            id,
+            imports,
+            root,
+            importer,
+            env: options?.ssr ? "server" : "client",
+          })
+        }
+      : undefined,
     async transform(code, id, options) {
       if (!code.includes(pkgName)) return
       return transform(code, id, { ssr: options?.ssr === true })
