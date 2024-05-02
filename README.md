@@ -57,6 +57,39 @@ export default defineConfig({
 })
 ```
 
+### `files`
+
+Configures validation of files that should only be present in certain environments.
+
+Note that validation is performed against the root-relative file path.
+
+```ts
+{
+  files?: {
+    server?: Array<string | RegExp>
+    client?: Array<string | RegExp>
+  }
+}
+```
+
+For example:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [
+    envOnly({
+      files: {
+        server: ["src/secret.ts", /\.server\.[cm][jt]sx?$/],
+      },
+    }),
+  ],
+})
+```
+
 ## Macros
 
 ### `serverOnly$`

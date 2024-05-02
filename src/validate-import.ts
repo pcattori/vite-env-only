@@ -1,23 +1,22 @@
-import { normalizePath } from "vite"
-import path from "node:path"
+import type { Env } from "./env"
+import { getEntries, normalizeRelativePath } from "./utils"
 
-type Env = "server" | "client"
 export type ImportValidators = Partial<Record<Env, Array<string | RegExp>>>
 
 export function validateImport({
   id,
-  imports,
+  importValidators,
   root,
   importer,
   env,
 }: {
   id: string
-  imports: ImportValidators
+  importValidators: ImportValidators
   root: string
   importer: string | undefined
   env: Env
 }): void {
-  entries(imports).forEach(([key, validators]) => {
+  getEntries(importValidators).forEach(([key, validators]) => {
     if (key === env || !validators || !validators.length) {
       return
     }
@@ -29,24 +28,10 @@ export function validateImport({
       ) {
         throw new Error(
           `Import from "${id}"${
-            importer ? ` in "${shortenImporter({ root, importer })}"` : ""
+            importer ? ` in "${normalizeRelativePath(root, importer)}"` : ""
           } is not allowed in the ${env} module graph`
         )
       }
     }
   })
-}
-
-function shortenImporter({
-  root,
-  importer,
-}: {
-  root: string
-  importer: string
-}) {
-  return normalizePath(path.relative(root, importer))
-}
-
-function entries<T extends {}>(obj: T) {
-  return Object.entries(obj) as [keyof T, T[keyof T]][]
 }

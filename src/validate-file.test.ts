@@ -1,20 +1,20 @@
 import { describe, expect, test } from "vitest"
-import { validateImport } from "./validate-import"
+import { validateFile } from "./validate-file"
 import path from "path"
 
 function fromCwd(relativePath: string) {
   return path.join(process.cwd(), relativePath)
 }
 
-describe("validateImport", () => {
+describe("validateFile", () => {
   describe("server", () => {
     describe("env: client", () => {
       test("failed string validation", () => {
         expect(() =>
-          validateImport({
-            id: "server-only",
-            importValidators: {
-              server: ["server-only"],
+          validateFile({
+            absolutePath: fromCwd("/lib/server-only.ts"),
+            fileValidators: {
+              server: ["lib/server-only.ts"],
               client: [],
             },
             root: fromCwd("/"),
@@ -22,16 +22,16 @@ describe("validateImport", () => {
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "server-only" in "path/to/importer.ts" is not allowed in the client module graph]`
+          `[Error: File "lib/server-only.ts" imported by "path/to/importer.ts" is not allowed in the client module graph]`
         )
       })
 
       test("failed regex validation", () => {
         expect(() =>
-          validateImport({
-            id: "../foo.server.ts",
-            importValidators: {
-              server: [/\.server/],
+          validateFile({
+            absolutePath: fromCwd("/lib/server-only.ts"),
+            fileValidators: {
+              server: [/^lib\/server-only\.ts$/],
               client: [],
             },
             root: fromCwd("/"),
@@ -39,16 +39,16 @@ describe("validateImport", () => {
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "../foo.server.ts" in "path/to/importer.ts" is not allowed in the client module graph]`
+          `[Error: File "lib/server-only.ts" imported by "path/to/importer.ts" is not allowed in the client module graph]`
         )
       })
 
       test("failed validation without importer", () => {
         expect(() =>
-          validateImport({
-            id: "server-only",
-            importValidators: {
-              server: ["server-only"],
+          validateFile({
+            absolutePath: fromCwd("/lib/server-only.ts"),
+            fileValidators: {
+              server: ["lib/server-only.ts"],
               client: [],
             },
             root: fromCwd("/"),
@@ -56,16 +56,16 @@ describe("validateImport", () => {
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "server-only" is not allowed in the client module graph]`
+          `[Error: File "lib/server-only.ts" is not allowed in the client module graph]`
         )
       })
 
       test("passed validation", () => {
         expect(() =>
-          validateImport({
-            id: "some-other-module",
-            importValidators: {
-              server: ["server-only"],
+          validateFile({
+            absolutePath: fromCwd("/lib/some-other-file.ts"),
+            fileValidators: {
+              server: [/server-only/],
               client: [],
             },
             root: fromCwd("/"),
@@ -79,10 +79,10 @@ describe("validateImport", () => {
     describe("env: server", () => {
       test("ignores server only modules", () => {
         expect(() =>
-          validateImport({
-            id: "server-only",
-            importValidators: {
-              server: ["server-only"],
+          validateFile({
+            absolutePath: fromCwd("/lib/server-only.ts"),
+            fileValidators: {
+              server: ["lib/server-only.ts"],
               client: [],
             },
             root: fromCwd("/"),
@@ -98,62 +98,62 @@ describe("validateImport", () => {
     describe("env: server", () => {
       test("failed string validation", () => {
         expect(() =>
-          validateImport({
-            id: "client-only",
-            importValidators: {
+          validateFile({
+            absolutePath: fromCwd("/lib/client-only.js"),
+            fileValidators: {
               server: [],
-              client: ["client-only"],
+              client: ["lib/client-only.js"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "client-only" in "path/to/importer.ts" is not allowed in the server module graph]`
+          `[Error: File "lib/client-only.js" imported by "path/to/importer.ts" is not allowed in the server module graph]`
         )
       })
 
       test("failed regex validation", () => {
         expect(() =>
-          validateImport({
-            id: "../foo.client.ts",
-            importValidators: {
+          validateFile({
+            absolutePath: fromCwd("/lib/client-only.ts"),
+            fileValidators: {
               server: [],
-              client: [/\.client/],
+              client: [/^lib\/client-only\.ts$/],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "../foo.client.ts" in "path/to/importer.ts" is not allowed in the server module graph]`
+          `[Error: File "lib/client-only.ts" imported by "path/to/importer.ts" is not allowed in the server module graph]`
         )
       })
 
       test("failed validation without importer", () => {
         expect(() =>
-          validateImport({
-            id: "client-only",
-            importValidators: {
+          validateFile({
+            absolutePath: fromCwd("/lib/client-only.ts"),
+            fileValidators: {
               server: [],
-              client: ["client-only"],
+              client: ["lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: undefined,
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "client-only" is not allowed in the server module graph]`
+          `[Error: File "lib/client-only.ts" is not allowed in the server module graph]`
         )
       })
 
       test("passed validation", () => {
         expect(() =>
-          validateImport({
-            id: "some-other-module",
-            importValidators: {
+          validateFile({
+            absolutePath: fromCwd("/lib/some-other-file.ts"),
+            fileValidators: {
               server: [],
-              client: ["client-only"],
+              client: ["lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -166,11 +166,11 @@ describe("validateImport", () => {
     describe("env: client", () => {
       test("ignores client only modules", () => {
         expect(() =>
-          validateImport({
-            id: "client-only",
-            importValidators: {
+          validateFile({
+            absolutePath: fromCwd("/lib/client-only.ts"),
+            fileValidators: {
               server: [],
-              client: ["client-only"],
+              client: ["/lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
