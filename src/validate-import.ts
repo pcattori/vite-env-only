@@ -1,7 +1,6 @@
 import type { Env } from "./env"
-import { getEntries, normalizeRelativePath } from "./utils"
-
-export type ImportValidators = Partial<Record<Env, Array<string | RegExp>>>
+import { normalizeRelativePath } from "./utils"
+import { type Validators, validateId } from "./validate-id"
 
 export function validateImport({
   id,
@@ -11,27 +10,17 @@ export function validateImport({
   env,
 }: {
   id: string
-  importValidators: ImportValidators
+  importValidators: Validators
   root: string
   importer: string | undefined
   env: Env
 }): void {
-  getEntries(importValidators).forEach(([key, validators]) => {
-    if (key === env || !validators || !validators.length) {
-      return
-    }
-
-    for (const validator of validators) {
-      if (
-        (typeof validator === "string" && validator === id) ||
-        (validator instanceof RegExp && id.match(validator))
-      ) {
-        throw new Error(
-          `Import from "${id}"${
-            importer ? ` in "${normalizeRelativePath(root, importer)}"` : ""
-          } is not allowed in the ${env} module graph`
-        )
-      }
-    }
+  validateId({
+    id,
+    env,
+    validators: importValidators,
+    errorMessage: `Import from "${id}"${
+      importer ? ` in "${normalizeRelativePath(root, importer)}"` : ""
+    } is not allowed in the ${env} module graph`,
   })
 }

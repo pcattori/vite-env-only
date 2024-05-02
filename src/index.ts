@@ -3,12 +3,16 @@ import path from "node:path"
 
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
-import { type ImportValidators, validateImport } from "./validate-import"
-import { type FileValidators, validateFile } from "./validate-file"
+import { type Validators } from "./validate-id"
+import { validateImport } from "./validate-import"
+import { validateFile } from "./validate-file"
 
 export { serverOnly$, clientOnly$ } from "./macro"
 
-type Options = { imports?: ImportValidators; files?: FileValidators }
+type Options = {
+  imports?: Validators
+  files?: Validators
+}
 
 export default ({
   imports: importValidators,
