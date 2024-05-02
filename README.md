@@ -57,7 +57,7 @@ export default defineConfig({
 
 ### `files`
 
-Configures validation of files that should only be present in certain environments. Validation is performed against the root-relative file path.
+Configures validation of files that should only be present in certain environments. Validation is performed against the resolved root-relative file path.
 
 ```ts
 {
