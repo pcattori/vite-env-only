@@ -31,7 +31,7 @@ Configures validation of import specifiers that should only be present in certai
 ```ts
 {
   imports?: {
-    server?: Array<string | RegExp>
+    server?: Array<string | RegExp>,
     client?: Array<string | RegExp>
   }
 }
@@ -62,7 +62,7 @@ Configures validation of files that should only be present in certain environmen
 ```ts
 {
   files?: {
-    server?: Array<string | RegExp>
+    server?: Array<string | RegExp>,
     client?: Array<string | RegExp>
   }
 }
