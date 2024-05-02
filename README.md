@@ -26,9 +26,7 @@ export default defineConfig({
 
 ### `imports`
 
-Configures validation of import specifiers that should only be present in certain environments.
-
-Note that validation is performed against the import specifier, not the resolved path. This means they may contain relative paths, unresolved aliases, omitted file extensions, query strings, etc.
+Configures validation of import specifiers that should only be present in certain environments. Validation is performed against the raw import specifier in the source code.
 
 ```ts
 {
@@ -50,7 +48,7 @@ export default defineConfig({
   plugins: [
     envOnly({
       imports: {
-        server: ["fs-extra", /\.server/],
+        server: ["fs-extra"],
       },
     }),
   ],
@@ -59,9 +57,7 @@ export default defineConfig({
 
 ### `files`
 
-Configures validation of files that should only be present in certain environments.
-
-Note that validation is performed against the root-relative file path.
+Configures validation of files that should only be present in certain environments. Validation is performed against the root-relative file path.
 
 ```ts
 {
