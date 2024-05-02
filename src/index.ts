@@ -1,4 +1,4 @@
-import type { Plugin } from "vite"
+import type { PluginOption } from "vite"
 
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
@@ -8,28 +8,34 @@ export { serverOnly$, clientOnly$ } from "./macro"
 
 type Options = { imports?: ImportValidators }
 
-export default ({ imports }: Options = {}): Plugin => {
+export default ({ imports }: Options = {}): PluginOption[] => {
   let root: string
 
-  return {
-    name: "vite-plugin-env-only",
-    configResolved(config) {
-      root = config.root
+  return [
+    {
+      name: "vite-plugin-env-only",
+      configResolved(config) {
+        root = config.root
+      },
+      async transform(code, id, options) {
+        if (!code.includes(pkgName)) return
+        return transform(code, id, { ssr: options?.ssr === true })
+      },
     },
-    resolveId: imports
-      ? (id, importer, options) => {
-          validateId({
-            id,
-            imports,
-            root,
-            importer,
-            env: options?.ssr ? "server" : "client",
-          })
+    imports
+      ? {
+          name: "vite-plugin-env-only-imports",
+          enforce: "pre",
+          resolveId(id, importer, options) {
+            validateId({
+              id,
+              imports,
+              root,
+              importer,
+              env: options?.ssr ? "server" : "client",
+            })
+          },
         }
-      : undefined,
-    async transform(code, id, options) {
-      if (!code.includes(pkgName)) return
-      return transform(code, id, { ssr: options?.ssr === true })
-    },
-  }
+      : null,
+  ]
 }
