@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest"
-import { validateId } from "./validate"
+import { validateImport } from "./validate-import"
 import path from "path"
 
 function fromCwd(relativePath: string) {
   return path.join(process.cwd(), relativePath)
 }
 
-describe("validateId", () => {
+describe("validateImport", () => {
   describe("server", () => {
     describe("env: client", () => {
       test("failed string validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "server-only",
             imports: {
               server: ["server-only"],
@@ -28,7 +28,7 @@ describe("validateId", () => {
 
       test("failed regex validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "../foo.server.ts",
             imports: {
               server: [/\.server/],
@@ -45,7 +45,7 @@ describe("validateId", () => {
 
       test("failed validation without importer", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "server-only",
             imports: {
               server: ["server-only"],
@@ -62,7 +62,7 @@ describe("validateId", () => {
 
       test("passed validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "some-other-module",
             imports: {
               server: ["server-only"],
@@ -79,7 +79,7 @@ describe("validateId", () => {
     describe("env: server", () => {
       test("ignores server only modules", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "server-only",
             imports: {
               server: ["server-only"],
@@ -98,7 +98,7 @@ describe("validateId", () => {
     describe("env: server", () => {
       test("failed string validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "client-only",
             imports: {
               server: [],
@@ -115,7 +115,7 @@ describe("validateId", () => {
 
       test("failed regex validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "../foo.client.ts",
             imports: {
               server: [],
@@ -132,7 +132,7 @@ describe("validateId", () => {
 
       test("failed validation without importer", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "client-only",
             imports: {
               server: [],
@@ -149,7 +149,7 @@ describe("validateId", () => {
 
       test("passed validation", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "some-other-module",
             imports: {
               server: [],
@@ -166,7 +166,7 @@ describe("validateId", () => {
     describe("env: client", () => {
       test("ignores client only modules", () => {
         expect(() =>
-          validateId({
+          validateImport({
             id: "client-only",
             imports: {
               server: [],

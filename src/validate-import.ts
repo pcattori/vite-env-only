@@ -4,7 +4,7 @@ import path from "node:path"
 type Env = "server" | "client"
 export type ImportValidators = Partial<Record<Env, Array<string | RegExp>>>
 
-export function validateId({
+export function validateImport({
   id,
   imports,
   root,

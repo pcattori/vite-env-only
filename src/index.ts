@@ -2,7 +2,7 @@ import type { PluginOption } from "vite"
 
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
-import { type ImportValidators, validateId } from "./validate"
+import { type ImportValidators, validateImport } from "./validate-import"
 
 export { serverOnly$, clientOnly$ } from "./macro"
 
@@ -27,7 +27,7 @@ export default ({ imports }: Options = {}): PluginOption[] => {
           name: "vite-plugin-env-only-imports",
           enforce: "pre",
           resolveId(id, importer, options) {
-            validateId({
+            validateImport({
               id,
               imports,
               root,
