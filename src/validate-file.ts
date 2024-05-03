@@ -1,16 +1,16 @@
 import type { Env } from "./env"
 import { normalizeRelativePath } from "./utils"
-import { type Validators, validateId } from "./validate-id"
+import { type EnvMatchers, validateId } from "./validate-id"
 
 export function validateFile({
   absolutePath,
-  fileValidators,
+  denyFiles,
   root,
   importer,
   env,
 }: {
   absolutePath: string
-  fileValidators: Validators
+  denyFiles: EnvMatchers
   root: string
   importer: string | undefined
   env: Env
@@ -20,9 +20,16 @@ export function validateFile({
   validateId({
     id: relativePath,
     env,
-    validators: fileValidators,
-    errorMessage: `File "${relativePath}"${
-      importer ? ` imported by "${normalizeRelativePath(root, importer)}"` : ""
-    } is not allowed in the ${env} module graph`,
+    invalidIds: denyFiles,
+
+    errorMessage: ({ matcherString }) =>
+      [
+        `File denied in ${env} environment`,
+        ` - File: ${relativePath}`,
+        ...(importer
+          ? [` - Importer: ${normalizeRelativePath(root, importer)}`]
+          : []),
+        ` - Matcher: ${matcherString}`,
+      ].join("\n"),
   })
 }

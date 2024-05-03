@@ -39,15 +39,20 @@ describe("imports", () => {
         config({
           ssr: true,
           envOnlyOptions: {
-            imports: {
-              server: [/server-only/],
-              client: [/client-only/],
+            denyImports: {
+              client: [/server-only/],
+              server: [/client-only/],
             },
           },
         })
       )
     ).rejects.toMatchInlineSnapshot(
-      `[Error: Import from "./client-only" in "lib/main.js" is not allowed in the server module graph]`
+      `
+      [Error: Import denied in server environment
+       - Import: "./client-only"
+       - Importer: lib/main.js
+       - Matcher: /client-only/]
+    `
     )
   })
 
@@ -56,9 +61,9 @@ describe("imports", () => {
       config({
         ssr: true,
         envOnlyOptions: {
-          imports: {
-            server: [],
+          denyImports: {
             client: [],
+            server: [],
           },
         },
       })
@@ -71,15 +76,20 @@ describe("imports", () => {
         config({
           ssr: false,
           envOnlyOptions: {
-            imports: {
-              server: [/server-only/],
-              client: [/client-only/],
+            denyImports: {
+              client: [/server-only/],
+              server: [/client-only/],
             },
           },
         })
       )
     ).rejects.toMatchInlineSnapshot(
-      `[Error: Import from "./server-only" in "lib/main.js" is not allowed in the client module graph]`
+      `
+      [Error: Import denied in client environment
+       - Import: "./server-only"
+       - Importer: lib/main.js
+       - Matcher: /server-only/]
+    `
     )
   })
 
@@ -88,9 +98,9 @@ describe("imports", () => {
       config({
         ssr: false,
         envOnlyOptions: {
-          imports: {
-            server: [],
+          denyImports: {
             client: [],
+            server: [],
           },
         },
       })

@@ -24,15 +24,15 @@ export default defineConfig({
 
 ## Options
 
-### `imports`
+### `denyImports`
 
-Configures validation of import specifiers that should only be present in certain environments. Validation is performed against the raw import specifier in the source code.
+Configures validation of import specifiers that should not be present on the client or server. Validation is performed against the raw import specifier in the source code.
 
 ```ts
 {
-  imports?: {
-    server?: Array<string | RegExp>
+  denyImports?: {
     client?: Array<string | RegExp>
+    server?: Array<string | RegExp>
   }
 }
 ```
@@ -47,23 +47,23 @@ import envOnly from "vite-env-only"
 export default defineConfig({
   plugins: [
     envOnly({
-      imports: {
-        server: ["fs-extra"],
+      denyImports: {
+        client: ["fs-extra"],
       },
     }),
   ],
 })
 ```
 
-### `files`
+### `denyFiles`
 
-Configures validation of files that should only be present in certain environments. Validation is performed against the resolved root-relative file path.
+Configures validation of files that should not present on the client or server. Validation is performed against the resolved and normalized root-relative file path.
 
 ```ts
 {
-  files?: {
-    server?: Array<string | RegExp>
+  denyFiles?: {
     client?: Array<string | RegExp>
+    server?: Array<string | RegExp>
   }
 }
 ```
@@ -78,8 +78,15 @@ import envOnly from "vite-env-only"
 export default defineConfig({
   plugins: [
     envOnly({
-      files: {
-        server: ["src/secret.ts", /\.server\.[cm][jt]sx?$/],
+      denyFiles: {
+        client: [
+          // Deny all files with a `.server` suffix
+          /\.server\.(\w+)?$/,
+          // Deny all files nested within a `.server` directory
+          /(^|\/).server\//,
+          // Deny a specific file
+          "src/secrets.ts",
+        ],
       },
     }),
   ],

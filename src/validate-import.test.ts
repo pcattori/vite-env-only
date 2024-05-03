@@ -13,16 +13,21 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "server-only",
-            importValidators: {
-              server: ["server-only"],
-              client: [],
+            denyImports: {
+              client: ["server-only"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "server-only" in "path/to/importer.ts" is not allowed in the client module graph]`
+          `
+          [Error: Import denied in client environment
+           - Import: "server-only"
+           - Importer: path/to/importer.ts
+           - Matcher: "server-only"]
+        `
         )
       })
 
@@ -30,33 +35,21 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "../foo.server.ts",
-            importValidators: {
-              server: [/\.server/],
-              client: [],
+            denyImports: {
+              client: [/\.server/],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "../foo.server.ts" in "path/to/importer.ts" is not allowed in the client module graph]`
-        )
-      })
-
-      test("failed validation without importer", () => {
-        expect(() =>
-          validateImport({
-            id: "server-only",
-            importValidators: {
-              server: ["server-only"],
-              client: [],
-            },
-            root: fromCwd("/"),
-            importer: undefined,
-            env: "client",
-          })
-        ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "server-only" is not allowed in the client module graph]`
+          `
+          [Error: Import denied in client environment
+           - Import: "../foo.server.ts"
+           - Importer: path/to/importer.ts
+           - Matcher: /\\.server/]
+        `
         )
       })
 
@@ -64,9 +57,9 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "some-other-module",
-            importValidators: {
-              server: ["server-only"],
-              client: [],
+            denyImports: {
+              client: ["server-only"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -81,9 +74,9 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "server-only",
-            importValidators: {
-              server: ["server-only"],
-              client: [],
+            denyImports: {
+              client: ["server-only"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -100,16 +93,21 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "client-only",
-            importValidators: {
-              server: [],
-              client: ["client-only"],
+            denyImports: {
+              client: [],
+              server: ["client-only"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "client-only" in "path/to/importer.ts" is not allowed in the server module graph]`
+          `
+          [Error: Import denied in server environment
+           - Import: "client-only"
+           - Importer: path/to/importer.ts
+           - Matcher: "client-only"]
+        `
         )
       })
 
@@ -117,33 +115,21 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "../foo.client.ts",
-            importValidators: {
-              server: [],
-              client: [/\.client/],
+            denyImports: {
+              client: [],
+              server: [/\.client/],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "../foo.client.ts" in "path/to/importer.ts" is not allowed in the server module graph]`
-        )
-      })
-
-      test("failed validation without importer", () => {
-        expect(() =>
-          validateImport({
-            id: "client-only",
-            importValidators: {
-              server: [],
-              client: ["client-only"],
-            },
-            root: fromCwd("/"),
-            importer: undefined,
-            env: "server",
-          })
-        ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: Import from "client-only" is not allowed in the server module graph]`
+          `
+          [Error: Import denied in server environment
+           - Import: "../foo.client.ts"
+           - Importer: path/to/importer.ts
+           - Matcher: /\\.client/]
+        `
         )
       })
 
@@ -151,9 +137,9 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "some-other-module",
-            importValidators: {
-              server: [],
-              client: ["client-only"],
+            denyImports: {
+              client: [],
+              server: ["client-only"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -168,9 +154,9 @@ describe("validateImport", () => {
         expect(() =>
           validateImport({
             id: "client-only",
-            importValidators: {
-              server: [],
-              client: ["client-only"],
+            denyImports: {
+              client: [],
+              server: ["client-only"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),

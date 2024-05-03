@@ -3,21 +3,18 @@ import path from "node:path"
 
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
-import { type Validators } from "./validate-id"
+import { type EnvMatchers } from "./validate-id"
 import { validateImport } from "./validate-import"
 import { validateFile } from "./validate-file"
 
 export { serverOnly$, clientOnly$ } from "./macro"
 
 type Options = {
-  imports?: Validators
-  files?: Validators
+  denyImports?: EnvMatchers
+  denyFiles?: EnvMatchers
 }
 
-export default ({
-  imports: importValidators,
-  files: fileValidators,
-}: Options = {}): PluginOption[] => {
+export default ({ denyImports, denyFiles }: Options = {}): PluginOption[] => {
   let root: string
   let command: ResolvedConfig["command"]
 
@@ -33,14 +30,18 @@ export default ({
         return transform(code, id, { ssr: options?.ssr === true })
       },
     },
-    importValidators
+    denyImports
       ? {
           name: "vite-plugin-env-only-imports",
           enforce: "pre",
           resolveId(id, importer, options) {
+            if (!importer) {
+              return
+            }
+
             validateImport({
-              importValidators,
               id,
+              denyImports,
               root,
               importer,
               env: options?.ssr ? "server" : "client",
@@ -48,7 +49,7 @@ export default ({
           },
         }
       : null,
-    fileValidators
+    denyFiles
       ? {
           name: "vite-plugin-env-only-files",
           enforce: "pre",
@@ -80,7 +81,7 @@ export default ({
 
             validateFile({
               absolutePath: resolvedId,
-              fileValidators,
+              denyFiles,
               root,
               importer,
               env: options?.ssr ? "server" : "client",

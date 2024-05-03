@@ -13,16 +13,21 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/server-only.ts"),
-            fileValidators: {
-              server: ["lib/server-only.ts"],
-              client: [],
+            denyFiles: {
+              client: ["lib/server-only.ts"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/server-only.ts" imported by "path/to/importer.ts" is not allowed in the client module graph]`
+          `
+          [Error: File denied in client environment
+           - File: lib/server-only.ts
+           - Importer: path/to/importer.ts
+           - Matcher: "lib/server-only.ts"]
+        `
         )
       })
 
@@ -30,16 +35,21 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/server-only.ts"),
-            fileValidators: {
-              server: [/^lib\/server-only\.ts$/],
-              client: [],
+            denyFiles: {
+              client: [/^lib\/server-only\.ts$/],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/server-only.ts" imported by "path/to/importer.ts" is not allowed in the client module graph]`
+          `
+          [Error: File denied in client environment
+           - File: lib/server-only.ts
+           - Importer: path/to/importer.ts
+           - Matcher: /^lib\\/server-only\\.ts$/]
+        `
         )
       })
 
@@ -47,16 +57,20 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/server-only.ts"),
-            fileValidators: {
-              server: ["lib/server-only.ts"],
-              client: [],
+            denyFiles: {
+              client: ["lib/server-only.ts"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: undefined,
             env: "client",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/server-only.ts" is not allowed in the client module graph]`
+          `
+          [Error: File denied in client environment
+           - File: lib/server-only.ts
+           - Matcher: "lib/server-only.ts"]
+        `
         )
       })
 
@@ -64,9 +78,9 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/some-other-file.ts"),
-            fileValidators: {
-              server: [/server-only/],
-              client: [],
+            denyFiles: {
+              client: [/server-only/],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -81,9 +95,9 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/server-only.ts"),
-            fileValidators: {
-              server: ["lib/server-only.ts"],
-              client: [],
+            denyFiles: {
+              client: ["lib/server-only.ts"],
+              server: [],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -100,16 +114,21 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/client-only.js"),
-            fileValidators: {
-              server: [],
-              client: ["lib/client-only.js"],
+            denyFiles: {
+              client: [],
+              server: ["lib/client-only.js"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/client-only.js" imported by "path/to/importer.ts" is not allowed in the server module graph]`
+          `
+          [Error: File denied in server environment
+           - File: lib/client-only.js
+           - Importer: path/to/importer.ts
+           - Matcher: "lib/client-only.js"]
+        `
         )
       })
 
@@ -117,16 +136,21 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/client-only.ts"),
-            fileValidators: {
-              server: [],
-              client: [/^lib\/client-only\.ts$/],
+            denyFiles: {
+              client: [],
+              server: [/^lib\/client-only\.ts$/],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/client-only.ts" imported by "path/to/importer.ts" is not allowed in the server module graph]`
+          `
+          [Error: File denied in server environment
+           - File: lib/client-only.ts
+           - Importer: path/to/importer.ts
+           - Matcher: /^lib\\/client-only\\.ts$/]
+        `
         )
       })
 
@@ -134,16 +158,20 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/client-only.ts"),
-            fileValidators: {
-              server: [],
-              client: ["lib/client-only.ts"],
+            denyFiles: {
+              client: [],
+              server: ["lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: undefined,
             env: "server",
           })
         ).toThrowErrorMatchingInlineSnapshot(
-          `[Error: File "lib/client-only.ts" is not allowed in the server module graph]`
+          `
+          [Error: File denied in server environment
+           - File: lib/client-only.ts
+           - Matcher: "lib/client-only.ts"]
+        `
         )
       })
 
@@ -151,9 +179,9 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/some-other-file.ts"),
-            fileValidators: {
-              server: [],
-              client: ["lib/client-only.ts"],
+            denyFiles: {
+              client: [],
+              server: ["lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),
@@ -168,9 +196,9 @@ describe("validateFile", () => {
         expect(() =>
           validateFile({
             absolutePath: fromCwd("/lib/client-only.ts"),
-            fileValidators: {
-              server: [],
-              client: ["/lib/client-only.ts"],
+            denyFiles: {
+              client: [],
+              server: ["/lib/client-only.ts"],
             },
             root: fromCwd("/"),
             importer: fromCwd("/path/to/importer.ts"),

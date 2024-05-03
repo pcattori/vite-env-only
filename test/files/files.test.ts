@@ -39,15 +39,20 @@ describe("files", () => {
         config({
           ssr: true,
           envOnlyOptions: {
-            files: {
-              server: ["lib/server-only.js"],
-              client: ["lib/client-only.js"],
+            denyFiles: {
+              client: ["lib/server-only.js"],
+              server: ["lib/client-only.js"],
             },
           },
         })
       )
     ).rejects.toMatchInlineSnapshot(
-      `[Error: File "lib/client-only.js" imported by "lib/main.js" is not allowed in the server module graph]`
+      `
+      [Error: File denied in server environment
+       - File: lib/client-only.js
+       - Importer: lib/main.js
+       - Matcher: "lib/client-only.js"]
+    `
     )
   })
 
@@ -56,9 +61,9 @@ describe("files", () => {
       config({
         ssr: true,
         envOnlyOptions: {
-          files: {
-            server: [],
+          denyFiles: {
             client: [],
+            server: [],
           },
         },
       })
@@ -71,15 +76,20 @@ describe("files", () => {
         config({
           ssr: false,
           envOnlyOptions: {
-            files: {
-              server: ["lib/server-only.js"],
-              client: ["lib/client-only.js"],
+            denyFiles: {
+              client: ["lib/server-only.js"],
+              server: ["lib/client-only.js"],
             },
           },
         })
       )
     ).rejects.toMatchInlineSnapshot(
-      `[Error: File "lib/server-only.js" imported by "lib/main.js" is not allowed in the client module graph]`
+      `
+      [Error: File denied in client environment
+       - File: lib/server-only.js
+       - Importer: lib/main.js
+       - Matcher: "lib/server-only.js"]
+    `
     )
   })
 
@@ -88,9 +98,9 @@ describe("files", () => {
       config({
         ssr: false,
         envOnlyOptions: {
-          files: {
-            server: [],
+          denyFiles: {
             client: [],
+            server: [],
           },
         },
       })

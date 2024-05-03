@@ -1,31 +1,38 @@
 import { Env } from "./env"
-import { getEntries, normalizeRelativePath } from "./utils"
 
-export type Validators = Partial<Record<Env, Array<string | RegExp>>>
+type Matcher = string | RegExp
+export type EnvMatchers = Partial<Record<Env, Array<Matcher>>>
 
 export function validateId({
   id,
   env,
-  validators,
+  invalidIds: denyIds,
   errorMessage,
 }: {
   id: string
   env: Env
-  validators: Validators
-  errorMessage: string
+  invalidIds: EnvMatchers
+  errorMessage: (args: { matcherString: string }) => string
 }): void {
-  for (const [key, envValidators] of getEntries(validators)) {
-    if (key === env || !envValidators || !envValidators.length) {
-      continue
-    }
+  const matchers = denyIds[env]
 
-    for (const validator of envValidators) {
-      if (
-        (typeof validator === "string" && validator === id) ||
-        (validator instanceof RegExp && id.match(validator))
-      ) {
-        throw new Error(errorMessage)
-      }
+  if (!matchers || !matchers.length) {
+    return
+  }
+
+  for (const matcher of matchers) {
+    if (
+      (typeof matcher === "string" && id === matcher) ||
+      (matcher instanceof RegExp && id.match(matcher))
+    ) {
+      throw new Error(
+        errorMessage({
+          matcherString:
+            typeof matcher === "string"
+              ? JSON.stringify(matcher)
+              : matcher.toString(),
+        })
+      )
     }
   }
 }
