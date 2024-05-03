@@ -57,7 +57,7 @@ export default defineConfig({
 
 ### `denyFiles`
 
-Configures validation of files that should not present on the client or server. Validation is performed against the resolved and normalized root-relative file path.
+Configures validation of files that should not be present on the client or server. Validation is performed against the resolved and normalized root-relative file path.
 
 ```ts
 {
