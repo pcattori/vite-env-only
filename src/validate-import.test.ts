@@ -21,11 +21,11 @@ describe("validateImport", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: Import denied in client environment
-     - Import: "server-only"
-     - Importer: path/to/importer.ts
-     - Matcher: "server-only"]
-  `
+      [Error: [vite-env-only:denyImports] Import denied in client environment
+       - Import: "server-only"
+       - Importer: path/to/importer.ts
+       - Pattern: "server-only"]
+    `
     )
   })
 
@@ -43,11 +43,11 @@ describe("validateImport", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: Import denied in client environment
-     - Import: "../foo.server.ts"
-     - Importer: path/to/importer.ts
-     - Matcher: /\\.server/]
-  `
+      [Error: [vite-env-only:denyImports] Import denied in client environment
+       - Import: "../foo.server.ts"
+       - Importer: path/to/importer.ts
+       - Pattern: /\\.server/]
+    `
     )
   })
 
@@ -95,11 +95,11 @@ describe("validateImport", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: Import denied in server environment
-     - Import: "client-only"
-     - Importer: path/to/importer.ts
-     - Matcher: "client-only"]
-  `
+      [Error: [vite-env-only:denyImports] Import denied in server environment
+       - Import: "client-only"
+       - Importer: path/to/importer.ts
+       - Pattern: "client-only"]
+    `
     )
   })
 
@@ -117,11 +117,11 @@ describe("validateImport", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: Import denied in server environment
-     - Import: "../foo.client.ts"
-     - Importer: path/to/importer.ts
-     - Matcher: /\\.client/]
-  `
+      [Error: [vite-env-only:denyImports] Import denied in server environment
+       - Import: "../foo.client.ts"
+       - Importer: path/to/importer.ts
+       - Pattern: /\\.client/]
+    `
     )
   })
 

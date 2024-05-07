@@ -48,10 +48,10 @@ describe("imports", () => {
       )
     ).rejects.toMatchInlineSnapshot(
       `
-      [Error: Import denied in server environment
+      [Error: [vite-env-only:denyImports] Import denied in server environment
        - Import: "./client-only"
        - Importer: lib/main.js
-       - Matcher: /client-only/]
+       - Pattern: /client-only/]
     `
     )
   })
@@ -85,10 +85,10 @@ describe("imports", () => {
       )
     ).rejects.toMatchInlineSnapshot(
       `
-      [Error: Import denied in client environment
+      [Error: [vite-env-only:denyImports] Import denied in client environment
        - Import: "./server-only"
        - Importer: lib/main.js
-       - Matcher: /server-only/]
+       - Pattern: /server-only/]
     `
     )
   })

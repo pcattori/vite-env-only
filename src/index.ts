@@ -3,15 +3,15 @@ import path from "node:path"
 
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
-import { type EnvMatchers } from "./validate-id"
+import { type EnvPatterns } from "./validate-id"
 import { validateImport } from "./validate-import"
 import { validateFile } from "./validate-file"
 
 export { serverOnly$, clientOnly$ } from "./macro"
 
 type Options = {
-  denyImports?: EnvMatchers
-  denyFiles?: EnvMatchers
+  denyImports?: EnvPatterns
+  denyFiles?: EnvPatterns
 }
 
 export default ({ denyImports, denyFiles }: Options = {}): PluginOption[] => {

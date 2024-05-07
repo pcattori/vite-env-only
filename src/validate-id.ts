@@ -1,38 +1,41 @@
 import { Env } from "./env"
+import pkg from "../package.json"
 
-type Matcher = string | RegExp
-export type EnvMatchers = Partial<Record<Env, Array<Matcher>>>
+type Pattern = string | RegExp
+export type EnvPatterns = Partial<Record<Env, Array<Pattern>>>
 
 export function validateId({
+  rule,
   id,
   env,
   invalidIds: denyIds,
   errorMessage,
 }: {
+  rule: string
   id: string
   env: Env
-  invalidIds: EnvMatchers
-  errorMessage: (args: { matcherString: string }) => string
+  invalidIds: EnvPatterns
+  errorMessage: (args: { pattern: string }) => string
 }): void {
-  const matchers = denyIds[env]
+  const patterns = denyIds[env]
 
-  if (!matchers || !matchers.length) {
+  if (!patterns || !patterns.length) {
     return
   }
 
-  for (const matcher of matchers) {
+  for (const pattern of patterns) {
     if (
-      (typeof matcher === "string" && id === matcher) ||
-      (matcher instanceof RegExp && id.match(matcher))
+      (typeof pattern === "string" && id === pattern) ||
+      (pattern instanceof RegExp && id.match(pattern))
     ) {
-      throw new Error(
-        errorMessage({
-          matcherString:
-            typeof matcher === "string"
-              ? JSON.stringify(matcher)
-              : matcher.toString(),
-        })
-      )
+      let message = errorMessage({
+        pattern:
+          typeof pattern === "string"
+            ? JSON.stringify(pattern)
+            : pattern.toString(),
+      })
+
+      throw new Error(`[${pkg.name}:${rule}] ${message}`)
     }
   }
 }

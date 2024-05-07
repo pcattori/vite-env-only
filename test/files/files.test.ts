@@ -48,10 +48,10 @@ describe("files", () => {
       )
     ).rejects.toMatchInlineSnapshot(
       `
-      [Error: File denied in server environment
+      [Error: [vite-env-only:denyFiles] File denied in server environment
        - File: lib/client-only.js
        - Importer: lib/main.js
-       - Matcher: "lib/client-only.js"]
+       - Pattern: "lib/client-only.js"]
     `
     )
   })
@@ -85,10 +85,10 @@ describe("files", () => {
       )
     ).rejects.toMatchInlineSnapshot(
       `
-      [Error: File denied in client environment
+      [Error: [vite-env-only:denyFiles] File denied in client environment
        - File: lib/server-only.js
        - Importer: lib/main.js
-       - Matcher: "lib/server-only.js"]
+       - Pattern: "lib/server-only.js"]
     `
     )
   })

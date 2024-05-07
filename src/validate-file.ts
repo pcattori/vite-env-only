@@ -1,6 +1,6 @@
 import type { Env } from "./env"
 import { normalizeRelativePath } from "./utils"
-import { type EnvMatchers, validateId } from "./validate-id"
+import { type EnvPatterns, validateId } from "./validate-id"
 
 export function validateFile({
   absolutePath,
@@ -10,7 +10,7 @@ export function validateFile({
   env,
 }: {
   absolutePath: string
-  denyFiles: EnvMatchers
+  denyFiles: EnvPatterns
   root: string
   importer: string | undefined
   env: Env
@@ -18,18 +18,19 @@ export function validateFile({
   const relativePath = normalizeRelativePath(root, absolutePath)
 
   validateId({
+    rule: "denyFiles",
     id: relativePath,
     env,
     invalidIds: denyFiles,
 
-    errorMessage: ({ matcherString }) =>
+    errorMessage: ({ pattern }) =>
       [
         `File denied in ${env} environment`,
         ` - File: ${relativePath}`,
         ...(importer
           ? [` - Importer: ${normalizeRelativePath(root, importer)}`]
           : []),
-        ` - Matcher: ${matcherString}`,
+        ` - Pattern: ${pattern}`,
       ].join("\n"),
   })
 }

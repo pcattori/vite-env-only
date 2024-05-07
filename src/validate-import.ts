@@ -1,6 +1,6 @@
 import type { Env } from "./env"
 import { normalizeRelativePath } from "./utils"
-import { type EnvMatchers, validateId } from "./validate-id"
+import { type EnvPatterns, validateId } from "./validate-id"
 
 export function validateImport({
   id,
@@ -10,21 +10,22 @@ export function validateImport({
   env,
 }: {
   id: string
-  denyImports: EnvMatchers
+  denyImports: EnvPatterns
   root: string
   importer: string
   env: Env
 }): void {
   validateId({
+    rule: "denyImports",
     id,
     env,
     invalidIds: denyImports,
-    errorMessage: ({ matcherString }) =>
+    errorMessage: ({ pattern }) =>
       [
         `Import denied in ${env} environment`,
         ` - Import: "${id}"`,
         ` - Importer: ${normalizeRelativePath(root, importer)}`,
-        ` - Matcher: ${matcherString}`,
+        ` - Pattern: ${pattern}`,
       ].join("\n"),
   })
 }

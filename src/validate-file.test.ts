@@ -21,11 +21,11 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in client environment
-     - File: lib/server-only.ts
-     - Importer: path/to/importer.ts
-     - Matcher: "lib/server-only.ts"]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in client environment
+       - File: lib/server-only.ts
+       - Importer: path/to/importer.ts
+       - Pattern: "lib/server-only.ts"]
+    `
     )
   })
 
@@ -43,11 +43,11 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in client environment
-     - File: lib/server-only.ts
-     - Importer: path/to/importer.ts
-     - Matcher: /^lib\\/server-only\\.ts$/]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in client environment
+       - File: lib/server-only.ts
+       - Importer: path/to/importer.ts
+       - Pattern: /^lib\\/server-only\\.ts$/]
+    `
     )
   })
 
@@ -65,10 +65,10 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in client environment
-     - File: lib/server-only.ts
-     - Matcher: "lib/server-only.ts"]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in client environment
+       - File: lib/server-only.ts
+       - Pattern: "lib/server-only.ts"]
+    `
     )
   })
 
@@ -131,11 +131,11 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in server environment
-     - File: lib/client-only.js
-     - Importer: path/to/importer.ts
-     - Matcher: "lib/client-only.js"]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in server environment
+       - File: lib/client-only.js
+       - Importer: path/to/importer.ts
+       - Pattern: "lib/client-only.js"]
+    `
     )
   })
 
@@ -153,11 +153,11 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in server environment
-     - File: lib/client-only.ts
-     - Importer: path/to/importer.ts
-     - Matcher: /^lib\\/client-only\\.ts$/]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in server environment
+       - File: lib/client-only.ts
+       - Importer: path/to/importer.ts
+       - Pattern: /^lib\\/client-only\\.ts$/]
+    `
     )
   })
 
@@ -175,10 +175,10 @@ describe("validateFile", () => {
       })
     ).toThrowErrorMatchingInlineSnapshot(
       `
-    [Error: File denied in server environment
-     - File: lib/client-only.ts
-     - Matcher: "lib/client-only.ts"]
-  `
+      [Error: [vite-env-only:denyFiles] File denied in server environment
+       - File: lib/client-only.ts
+       - Pattern: "lib/client-only.ts"]
+    `
     )
   })
 
