@@ -1,7 +1,7 @@
 {
   "name": "vite-env-only",
   "version": "0.0.0",
-  "description": "Explicitly split up client and server code at the expression level",
+  "description": "Minimal Vite plugin for for isolating server-only and client-only code",
   "keywords": [
     "vite-plugin",
     "env",

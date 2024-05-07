@@ -2,7 +2,7 @@
 
 # vite-env-only
 
-Minimal Vite plugin for environment isolation via macros for server-only and client-only.
+Minimal Vite plugin for for isolating server-only and client-only code.
 
 ## Install
 
@@ -19,6 +19,77 @@ import envOnly from "vite-env-only"
 
 export default defineConfig({
   plugins: [envOnly()],
+})
+```
+
+## Options
+
+### `denyImports`
+
+Configures validation of import specifiers that should not be present on the client or server. Validation is performed against the raw import specifier in the source code.
+
+```ts
+{
+  denyImports?: {
+    client?: Array<string | RegExp>
+    server?: Array<string | RegExp>
+  }
+}
+```
+
+For example:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [
+    envOnly({
+      denyImports: {
+        client: ["fs-extra"],
+      },
+    }),
+  ],
+})
+```
+
+### `denyFiles`
+
+Configures validation of files that should not be present on the client or server. Validation is performed against the resolved and normalized root-relative file path.
+
+```ts
+{
+  denyFiles?: {
+    client?: Array<string | RegExp>
+    server?: Array<string | RegExp>
+  }
+}
+```
+
+For example:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [
+    envOnly({
+      denyFiles: {
+        client: [
+          // Deny all files with a `.server` suffix
+          /\.server\.(\w+)?$/,
+          // Deny all files nested within a `.server` directory
+          /(^|\/).server\//,
+          // Deny a specific file
+          "src/secrets.ts",
+        ],
+      },
+    }),
+  ],
 })
 ```
 
@@ -74,7 +145,7 @@ On the server this produces:
 export const message = undefined
 ```
 
-## Dead-code elimination
+### Dead-code elimination
 
 This plugin eliminates any identifiers that become unreferenced as a result of macro replacement.
 
@@ -109,7 +180,7 @@ function readConfig() {
 export const serverConfig = readConfig()
 ```
 
-## Type safety
+### Type safety
 
 The macro types capture the fact that values can be `undefined` depending on the environment.
 
@@ -131,16 +202,16 @@ export const API_KEY = serverOnly$("secret")!
 //           ^? string
 ```
 
-## Why?
+### Why?
 
-Vite already provides [`import.meta.env.SSR`][vite-env-vars] which works in a similar way to this plugin in production.
+Vite already provides [`import.meta.env.SSR`][vite-env-vars] which works in a similar way to these macros in production.
 However, in development Vite neither replaces `import.meta.env.SSR` nor performs dead-code elimination as Vite considers these steps to be optimizations.
 
 In general, its a bad idea to rely on optimizations for correctness.
-In contrast, this plugin considers macro replacement and dead-code elimination to be part of its feature set.
+In contrast, these macros treat code replacement and dead-code elimination as part of their feature set.
 
-Additionally, this plugin uses function calls to mark expressions as server-only or client-only.
-That means it can _guarantee_ that code within its macros never ends up in the wrong environment while only transforming a single AST node type: function call expressions.
+Additionally, these macros use function calls to mark expressions as server-only or client-only.
+That means they can _guarantee_ that code within the function call never ends up in the wrong environment while only transforming a single AST node type: function call expressions.
 
 `import.meta.env.SSR` is instead a special identifier which can show up in many different AST node types: `if` statements, ternaries, `switch` statements, etc.
 This makes it far more challenging to guarantee that dead-code completely eliminated.
