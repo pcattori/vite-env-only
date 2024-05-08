@@ -24,6 +24,9 @@
     "test": "vitest"
   },
   "packageManager": "pnpm@8.13.1",
+  "peerDependencies": {
+    "vite": "*"
+  },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
