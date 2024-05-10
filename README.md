@@ -62,7 +62,7 @@ Configures validation of files that should not be present on the client or serve
 ```ts
 {
   denyFiles?: {
-    client?: Array<string | RegExp>
+    client?: Array<string | RegExp>,
     server?: Array<string | RegExp>
   }
 }
