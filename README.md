@@ -31,7 +31,7 @@ Configures validation of import specifiers that should not be present on the cli
 ```ts
 {
   denyImports?: {
-    client?: Array<string | RegExp>
+    client?: Array<string | RegExp>,
     server?: Array<string | RegExp>
   }
 }
