@@ -23,6 +23,9 @@ importers:
       '@babel/types':
         specifier: ^7.23.6
         version: 7.23.6
+      micromatch:
+        specifier: ^4.0.5
+        version: 4.0.5
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.2
@@ -36,6 +39,9 @@ importers:
       '@types/babel__traverse':
         specifier: ^7.20.5
         version: 7.20.5
+      '@types/micromatch':
+        specifier: ^4.0.7
+        version: 4.0.7
       '@types/node':
         specifier: ^20.10.6
         version: 20.10.6
@@ -470,8 +476,14 @@ packages:
   '@types/babel__traverse@7.20.5':
     resolution: {integrity: sha512-WXCyOcRtH37HAUkpXhUduaxdm82b4GSlyTqajXviN4EfiuPgNYR109xMCKvpl6zPIpua0DGlMEDCq+g8EdoheQ==}
 
+  '@types/braces@3.0.4':
+    resolution: {integrity: sha512-0WR3b8eaISjEW7RpZnclONaLFDf7buaowRHdqLp4vLj54AsSAYWfh3DRbfiYJY9XDxMgx1B4sE1Afw2PGpuHOA==}
+
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
+
+  '@types/micromatch@4.0.7':
+    resolution: {integrity: sha512-C/FMQ8HJAZhTsDpl4wDKZdMeeW5USjgzOczUwTGbRc1ZopPgOhIEnxY2ZgUrsuyy4DwK1JVOJZKFakv3TbCKiA==}
 
   '@types/minimist@1.2.5':
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
@@ -2464,7 +2476,13 @@ snapshots:
     dependencies:
       '@babel/types': 7.23.6
 
+  '@types/braces@3.0.4': {}
+
   '@types/estree@1.0.5': {}
+
+  '@types/micromatch@4.0.7':
+    dependencies:
+      '@types/braces': 3.0.4
 
   '@types/minimist@1.2.5': {}
 

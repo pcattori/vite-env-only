@@ -33,6 +33,7 @@
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__traverse": "^7.20.5",
+    "@types/micromatch": "^4.0.7",
     "@types/node": "^20.10.6",
     "dedent": "^1.5.1",
     "tsup": "^8.0.1",
@@ -45,7 +46,8 @@
     "@babel/generator": "^7.23.6",
     "@babel/parser": "^7.23.6",
     "@babel/traverse": "^7.23.7",
-    "@babel/types": "^7.23.6"
+    "@babel/types": "^7.23.6",
+    "micromatch": "^4.0.5"
   },
   "prettier": {
     "semi": false
