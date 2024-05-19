@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - run: pnpm install
       - run: pnpm typecheck
   Test:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - run: pnpm install
       - run: pnpm test
   Build:
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - run: pnpm install
       - run: pnpm build
   Release:
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - run: pnpm install
       - run: pnpm build
       - name: Release
