@@ -29,6 +29,28 @@ describe("validateFile", () => {
     )
   })
 
+  test("denyFiles.client / env:client / failed glob validation", () => {
+    expect(() =>
+      validateFile({
+        absolutePath: fromCwd("/lib/server-only.ts"),
+        denyFiles: {
+          client: ["**/server-only.*"],
+          server: [],
+        },
+        root: fromCwd("/"),
+        importer: fromCwd("/path/to/importer.ts"),
+        env: "client",
+      })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `
+      [Error: [vite-env-only:denyFiles] File denied in client environment
+       - File: lib/server-only.ts
+       - Importer: path/to/importer.ts
+       - Pattern: "**/server-only.*"]
+    `
+    )
+  })
+
   test("denyFiles.client / env:client / failed regex validation", () => {
     expect(() =>
       validateFile({
@@ -135,6 +157,28 @@ describe("validateFile", () => {
        - File: lib/client-only.js
        - Importer: path/to/importer.ts
        - Pattern: "lib/client-only.js"]
+    `
+    )
+  })
+
+  test("denyFiles.server / env:server / failed glob validation", () => {
+    expect(() =>
+      validateFile({
+        absolutePath: fromCwd("/lib/client-only.ts"),
+        denyFiles: {
+          client: [],
+          server: ["**/client-only.*"],
+        },
+        root: fromCwd("/"),
+        importer: fromCwd("/path/to/importer.ts"),
+        env: "server",
+      })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `
+      [Error: [vite-env-only:denyFiles] File denied in server environment
+       - File: lib/client-only.ts
+       - Importer: path/to/importer.ts
+       - Pattern: "**/client-only.*"]
     `
     )
   })

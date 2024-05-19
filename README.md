@@ -26,7 +26,9 @@ export default defineConfig({
 
 ### `denyImports`
 
-Configures validation of import specifiers that should not be present on the client or server. Validation is performed against the raw import specifier in the source code.
+Configures validation of import specifiers that should not be present on the client or server.
+Validation is performed against the raw import specifier in the source code.
+Uses [micromatch][micromatch] for pattern matching globs.
 
 ```ts
 {
@@ -48,7 +50,7 @@ export default defineConfig({
   plugins: [
     envOnly({
       denyImports: {
-        client: ["fs-extra"],
+        client: ["fs-extra", /^node:/],
       },
     }),
   ],
@@ -57,7 +59,9 @@ export default defineConfig({
 
 ### `denyFiles`
 
-Configures validation of files that should not be present on the client or server. Validation is performed against the resolved and normalized root-relative file path.
+Configures validation of files that should not be present on the client or server.
+Validation is performed against the resolved and normalized root-relative file path.
+Uses [micromatch][micromatch] for pattern matching globs.
 
 ```ts
 {
@@ -81,9 +85,9 @@ export default defineConfig({
       denyFiles: {
         client: [
           // Deny all files with a `.server` suffix
-          /\.server\.(\w+)?$/,
+          "**/*.server.*",
           // Deny all files nested within a `.server` directory
-          /(^|\/).server\//,
+          "**/.server/**/*",
           // Deny a specific file
           "src/secrets.ts",
         ],
@@ -230,3 +234,4 @@ Thanks to these project for exploring environment isolation and conventions for 
 [bling]: https://github.com/TanStack/bling
 [bling]: https://github.com/TanStack/bling
 [ts-non-null]: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-
+[micromatch]: https://github.com/micromatch/micromatch
