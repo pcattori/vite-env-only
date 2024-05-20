@@ -1,4 +1,4 @@
-import { isMatch } from "micromatch"
+import micromatch from "micromatch"
 
 import { Env } from "./env"
 import pkg from "../package.json"
@@ -27,7 +27,7 @@ export function validateId({
 
   for (const pattern of patterns) {
     if (
-      (typeof pattern === "string" && isMatch(id, pattern)) ||
+      (typeof pattern === "string" && micromatch.isMatch(id, pattern)) ||
       (pattern instanceof RegExp && id.match(pattern))
     ) {
       let message = errorMessage({
