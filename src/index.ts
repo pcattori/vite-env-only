@@ -9,85 +9,104 @@ import { validateFile } from "./validate-file"
 
 export { serverOnly$, clientOnly$ } from "./macro"
 
-type Options = {
-  denyImports?: EnvPatterns
-  denyFiles?: EnvPatterns
+function macrosPlugin(): PluginOption {
+  return {
+    name: "vite-env-only-macros",
+    async transform(code, id, options) {
+      if (!code.includes(pkgName)) return
+      return transform(code, id, { ssr: options?.ssr === true })
+    },
+  }
 }
 
-export default ({ denyImports, denyFiles }: Options = {}): PluginOption[] => {
+function denyImportsPlugin(denyImports: EnvPatterns): PluginOption {
+  let root: string
+
+  return {
+    name: "vite-env-only-deny-imports",
+    enforce: "pre",
+    configResolved(config) {
+      root = config.root
+    },
+    resolveId(id, importer, options) {
+      if (!importer) {
+        return
+      }
+
+      validateImport({
+        id,
+        denyImports,
+        root,
+        importer,
+        env: options?.ssr ? "server" : "client",
+      })
+    },
+  }
+}
+
+function denyFilesPlugin(denyFiles: EnvPatterns): PluginOption {
   let root: string
   let command: ResolvedConfig["command"]
 
-  return [
-    {
-      name: "vite-plugin-env-only",
-      configResolved(config) {
-        root = config.root
-        command = config.command
-      },
-      async transform(code, id, options) {
-        if (!code.includes(pkgName)) return
-        return transform(code, id, { ssr: options?.ssr === true })
-      },
+  return {
+    name: "vite-env-only-deny-files",
+    enforce: "pre",
+    configResolved(config) {
+      root = config.root
+      command = config.command
     },
-    denyImports
-      ? {
-          name: "vite-plugin-env-only-imports",
-          enforce: "pre",
-          resolveId(id, importer, options) {
-            if (!importer) {
-              return
-            }
+    async resolveId(id, importer, options) {
+      if (command !== "build" && importer?.endsWith(".html")) {
+        // Vite has a special `index.html` importer for `resolveId` within `transformRequest`
+        // https://github.com/vitejs/vite/blob/5684fcd8d27110d098b3e1c19d851f44251588f1/packages/vite/src/node/server/transformRequest.ts#L158
+        // https://github.com/vitejs/vite/blob/5684fcd8d27110d098b3e1c19d851f44251588f1/packages/vite/src/node/server/pluginContainer.ts#L668
+        return
+      }
 
-            validateImport({
-              id,
-              denyImports,
-              root,
-              importer,
-              env: options?.ssr ? "server" : "client",
-            })
-          },
-        }
-      : null,
-    denyFiles
-      ? {
-          name: "vite-plugin-env-only-files",
-          enforce: "pre",
-          async resolveId(id, importer, options) {
-            if (command !== "build" && importer?.endsWith(".html")) {
-              // Vite has a special `index.html` importer for `resolveId` within `transformRequest`
-              // https://github.com/vitejs/vite/blob/5684fcd8d27110d098b3e1c19d851f44251588f1/packages/vite/src/node/server/transformRequest.ts#L158
-              // https://github.com/vitejs/vite/blob/5684fcd8d27110d098b3e1c19d851f44251588f1/packages/vite/src/node/server/pluginContainer.ts#L668
-              return
-            }
+      let isResolving = options?.custom?.["vite-env-only-deny-files"] ?? false
 
-            let isResolving =
-              options?.custom?.["vite-plugin-env-only-files"] ?? false
+      if (isResolving) {
+        return
+      }
 
-            if (isResolving) {
-              return
-            }
+      options.custom = {
+        ...options.custom,
+        "vite-env-only-deny-files": true,
+      }
 
-            options.custom = {
-              ...options.custom,
-              "vite-plugin-env-only-files": true,
-            }
+      const resolvedId = (await this.resolve(id, importer, options))?.id
 
-            const resolvedId = (await this.resolve(id, importer, options))?.id
+      if (!resolvedId || !path.isAbsolute(resolvedId)) {
+        return
+      }
 
-            if (!resolvedId || !path.isAbsolute(resolvedId)) {
-              return
-            }
+      validateFile({
+        absolutePath: resolvedId,
+        denyFiles,
+        root,
+        importer,
+        env: options?.ssr ? "server" : "client",
+      })
+    },
+  }
+}
 
-            validateFile({
-              absolutePath: resolvedId,
-              denyFiles,
-              root,
-              importer,
-              env: options?.ssr ? "server" : "client",
-            })
-          },
-        }
-      : null,
+function envOnly({
+  denyImports,
+  denyFiles,
+}: {
+  denyImports?: EnvPatterns
+  denyFiles?: EnvPatterns
+} = {}): PluginOption {
+  return [
+    macrosPlugin(),
+    denyImports ? denyImportsPlugin(denyImports) : null,
+    denyFiles ? denyFilesPlugin(denyFiles) : null,
   ]
 }
+
+envOnly.macros = macrosPlugin
+envOnly.denyImports = denyImportsPlugin
+envOnly.denyFiles = denyFilesPlugin
+
+export default envOnly

@@ -8,12 +8,13 @@ describe("files", () => {
 
   const config = ({
     ssr,
-    envOnlyOptions,
+    plugins,
   }: {
     ssr: boolean
-    envOnlyOptions: Parameters<typeof envOnly>[0]
+    plugins: vite.PluginOption[]
   }): vite.InlineConfig => ({
     root,
+    plugins,
     build: {
       ssr,
       minify: false,
@@ -30,7 +31,6 @@ describe("files", () => {
         },
       },
     },
-    plugins: [envOnly(envOnlyOptions)],
   })
 
   test("server failure", async () => {
@@ -38,12 +38,14 @@ describe("files", () => {
       vite.build(
         config({
           ssr: true,
-          envOnlyOptions: {
-            denyFiles: {
-              client: ["lib/server-only.js"],
-              server: ["lib/client-only.js"],
-            },
-          },
+          plugins: [
+            envOnly({
+              denyFiles: {
+                client: ["lib/server-only.js"],
+                server: ["lib/client-only.js"],
+              },
+            }),
+          ],
         })
       )
     ).rejects.toMatchInlineSnapshot(
@@ -60,12 +62,14 @@ describe("files", () => {
     vite.build(
       config({
         ssr: true,
-        envOnlyOptions: {
-          denyFiles: {
-            client: [],
-            server: [],
-          },
-        },
+        plugins: [
+          envOnly({
+            denyFiles: {
+              client: [],
+              server: [],
+            },
+          }),
+        ],
       })
     )
   })
@@ -75,12 +79,14 @@ describe("files", () => {
       vite.build(
         config({
           ssr: false,
-          envOnlyOptions: {
-            denyFiles: {
-              client: ["lib/server-only.js"],
-              server: ["lib/client-only.js"],
-            },
-          },
+          plugins: [
+            envOnly({
+              denyFiles: {
+                client: ["lib/server-only.js"],
+                server: ["lib/client-only.js"],
+              },
+            }),
+          ],
         })
       )
     ).rejects.toMatchInlineSnapshot(
@@ -97,13 +103,38 @@ describe("files", () => {
     await vite.build(
       config({
         ssr: false,
-        envOnlyOptions: {
-          denyFiles: {
-            client: [],
-            server: [],
-          },
-        },
+        plugins: [
+          envOnly({
+            denyFiles: {
+              client: [],
+              server: [],
+            },
+          }),
+        ],
       })
+    )
+  })
+
+  test("standalone plugin", async () => {
+    await expect(
+      vite.build(
+        config({
+          ssr: false,
+          plugins: [
+            envOnly.denyFiles({
+              client: ["lib/server-only.js"],
+              server: ["lib/client-only.js"],
+            }),
+          ],
+        })
+      )
+    ).rejects.toMatchInlineSnapshot(
+      `
+      [Error: [vite-env-only:denyFiles] File denied in client environment
+       - File: lib/server-only.js
+       - Importer: lib/main.js
+       - Pattern: "lib/server-only.js"]
+    `
     )
   })
 })

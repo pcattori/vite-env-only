@@ -8,12 +8,13 @@ describe("imports", () => {
 
   const config = ({
     ssr,
-    envOnlyOptions,
+    plugins,
   }: {
     ssr: boolean
-    envOnlyOptions: Parameters<typeof envOnly>[0]
+    plugins: vite.PluginOption[]
   }): vite.InlineConfig => ({
     root,
+    plugins,
     build: {
       ssr,
       minify: false,
@@ -30,7 +31,6 @@ describe("imports", () => {
         },
       },
     },
-    plugins: [envOnly(envOnlyOptions)],
   })
 
   test("server failure", async () => {
@@ -38,12 +38,14 @@ describe("imports", () => {
       vite.build(
         config({
           ssr: true,
-          envOnlyOptions: {
-            denyImports: {
-              client: [/server-only/],
-              server: [/client-only/],
-            },
-          },
+          plugins: [
+            envOnly({
+              denyImports: {
+                client: [/server-only/],
+                server: [/client-only/],
+              },
+            }),
+          ],
         })
       )
     ).rejects.toMatchInlineSnapshot(
@@ -60,12 +62,14 @@ describe("imports", () => {
     vite.build(
       config({
         ssr: true,
-        envOnlyOptions: {
-          denyImports: {
-            client: [],
-            server: [],
-          },
-        },
+        plugins: [
+          envOnly({
+            denyImports: {
+              client: [],
+              server: [],
+            },
+          }),
+        ],
       })
     )
   })
@@ -75,12 +79,14 @@ describe("imports", () => {
       vite.build(
         config({
           ssr: false,
-          envOnlyOptions: {
-            denyImports: {
-              client: [/server-only/],
-              server: [/client-only/],
-            },
-          },
+          plugins: [
+            envOnly({
+              denyImports: {
+                client: [/server-only/],
+                server: [/client-only/],
+              },
+            }),
+          ],
         })
       )
     ).rejects.toMatchInlineSnapshot(
@@ -97,13 +103,38 @@ describe("imports", () => {
     await vite.build(
       config({
         ssr: false,
-        envOnlyOptions: {
-          denyImports: {
-            client: [],
-            server: [],
-          },
-        },
+        plugins: [
+          envOnly({
+            denyImports: {
+              client: [],
+              server: [],
+            },
+          }),
+        ],
       })
+    )
+  })
+
+  test("standalone plugin", async () => {
+    await expect(
+      vite.build(
+        config({
+          ssr: false,
+          plugins: [
+            envOnly.denyImports({
+              client: [/server-only/],
+              server: [/client-only/],
+            }),
+          ],
+        })
+      )
+    ).rejects.toMatchInlineSnapshot(
+      `
+      [Error: [vite-env-only:denyImports] Import denied in client environment
+       - Import: "./server-only"
+       - Importer: lib/main.js
+       - Pattern: /server-only/]
+    `
     )
   })
 })

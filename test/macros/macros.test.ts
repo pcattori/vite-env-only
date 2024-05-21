@@ -9,11 +9,14 @@ describe("macros", () => {
   const config = ({
     ssr,
     outDir,
+    plugins,
   }: {
     ssr: boolean
     outDir: string
+    plugins: vite.PluginOption[]
   }): vite.InlineConfig => ({
     root,
+    plugins,
     build: {
       ssr,
       minify: false,
@@ -28,12 +31,18 @@ describe("macros", () => {
         },
       },
     },
-    plugins: [envOnly()],
   })
 
   test("serverOnly$", async () => {
     const outDir = path.join(root, "dist/server")
-    await vite.build(config({ ssr: true, outDir }))
+
+    await vite.build(
+      config({
+        ssr: true,
+        outDir,
+        plugins: [envOnly()],
+      })
+    )
 
     expect((await import(outDir)).default).toEqual({
       server: true,
@@ -43,11 +52,35 @@ describe("macros", () => {
 
   test("clientOnly$", async () => {
     const outDir = path.join(root, "dist/client")
-    await vite.build(config({ ssr: false, outDir }))
+
+    await vite.build(
+      config({
+        ssr: false,
+        outDir,
+        plugins: [envOnly()],
+      })
+    )
 
     expect((await import(outDir)).default).toEqual({
       server: false,
       client: true,
+    })
+  })
+
+  test("standalone plugin", async () => {
+    const outDir = path.join(root, "dist/server")
+
+    await vite.build(
+      config({
+        ssr: true,
+        outDir,
+        plugins: [envOnly.macros()],
+      })
+    )
+
+    expect((await import(outDir)).default).toEqual({
+      server: true,
+      client: false,
     })
   })
 })

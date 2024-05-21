@@ -57,6 +57,22 @@ export default defineConfig({
 })
 ```
 
+This feature is also available as a standalone plugin:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [
+    envOnly.denyImports({
+      client: ["fs-extra", /^node:/],
+    }),
+  ],
+})
+```
+
 ### `denyFiles`
 
 Configures validation of files that should not be present on the client or server.
@@ -92,6 +108,22 @@ export default defineConfig({
           "src/secrets.ts",
         ],
       },
+    }),
+  ],
+})
+```
+
+This feature is also available as a standalone plugin:
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [
+    envOnly.denyFiles({
+      client: ["**/*.server.*"],
     }),
   ],
 })
@@ -204,6 +236,19 @@ import { serverOnly$ } from "vite-env-only"
 
 export const API_KEY = serverOnly$("secret")!
 //           ^? string
+```
+
+### Standalone plugin
+
+The macros feature is also available as a standalone plugin:
+
+```ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
+
+export default defineConfig({
+  plugins: [envOnly.macros()],
+})
 ```
 
 ### Why?
