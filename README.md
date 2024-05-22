@@ -99,6 +99,8 @@ export default defineConfig({
 
 ## Macros
 
+All macros can be imported within your app code from `"vite-env-only/macros"`.
+
 ### `serverOnly$`
 
 Marks an expression as server-only and replaces it with `undefined` on the client.
@@ -107,7 +109,7 @@ Keeps the expression as-is on the server.
 For example:
 
 ```ts
-import { serverOnly$ } from "vite-env-only"
+import { serverOnly$ } from "vite-env-only/macros"
 
 export const message = serverOnly$("i only exist on the server")
 ```
@@ -132,7 +134,7 @@ Keeps the expression as-is on the client.
 For example:
 
 ```ts
-import { clientOnly$ } from "vite-env-only"
+import { clientOnly$ } from "vite-env-only/macros"
 
 export const message = clientOnly$("i only exist on the client")
 ```
@@ -156,7 +158,7 @@ This plugin eliminates any identifiers that become unreferenced as a result of m
 For example, given the following usage of `serverOnly$`:
 
 ```ts
-import { serverOnly$ } from "vite-env-only"
+import { serverOnly$ } from "vite-env-only/macros"
 import { readFile } from "node:fs"
 
 function readConfig() {
@@ -191,7 +193,7 @@ The macro types capture the fact that values can be `undefined` depending on the
 For example:
 
 ```ts
-import { serverOnly$ } from "vite-env-only"
+import { serverOnly$ } from "vite-env-only/macros"
 
 export const API_KEY = serverOnly$("secret")
 //           ^? string | undefined
@@ -200,7 +202,7 @@ export const API_KEY = serverOnly$("secret")
 If you want to opt out of strict type safety, you can use a [non-null assertion][ts-non-null] (`!`):
 
 ```ts
-import { serverOnly$ } from "vite-env-only"
+import { serverOnly$ } from "vite-env-only/macros"
 
 export const API_KEY = serverOnly$("secret")!
 //           ^? string

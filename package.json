@@ -15,12 +15,19 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./macros": {
+      "import": "./dist/macros.js",
+      "require": "./dist/macros.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "typecheck": "tsc",
-    "build": "tsup src/index.ts --dts --format esm,cjs --shims",
+    "build": "tsup",
     "test": "vitest",
     "changeset": "changeset"
   },
