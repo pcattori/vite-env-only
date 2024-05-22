@@ -7,8 +7,6 @@ import { type EnvPatterns } from "./validate-id"
 import { validateImport } from "./validate-import"
 import { validateFile } from "./validate-file"
 
-export { serverOnly$, clientOnly$ } from "./macro"
-
 type Options = {
   denyImports?: EnvPatterns
   denyFiles?: EnvPatterns

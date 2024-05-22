@@ -15,10 +15,12 @@ import {
   eliminateUnreferencedIdentifiers,
 } from "./dce"
 
+const macrosSpecifier = `${pkgName}/macros`
+
 const isMacroBinding = (binding: Binding, macro: string): boolean => {
   // import source
   if (!t.isImportDeclaration(binding?.path.parent)) return false
-  if (binding.path.parent.source.value !== pkgName) return false
+  if (binding.path.parent.source.value !== macrosSpecifier) return false
 
   // import specifier
   if (!t.isImportSpecifier(binding?.path.node)) return false
@@ -44,7 +46,7 @@ const isMacro = (path: NodePath<t.CallExpression>, macro: string) => {
 export const transform = (
   code: string,
   id: string,
-  options: { ssr: boolean },
+  options: { ssr: boolean }
 ): GeneratorResult => {
   let ast = parse(code, { sourceType: "module" })
 
@@ -88,19 +90,19 @@ export const transform = (
       }
       if (t.isImportSpecifier(path.parent)) return
       throw path.buildCodeFrameError(
-        `'${path.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`,
+        `'${path.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`
       )
     },
 
     // ensure that macros are not imported via namespace
     ImportDeclaration(path) {
-      if (path.node.source.value !== pkgName) return
+      if (path.node.source.value !== macrosSpecifier) return
       path.node.specifiers.forEach((specifier, i) => {
         if (t.isImportNamespaceSpecifier(specifier)) {
           const subpath = path.get(`specifiers.${i}`)
           if (Array.isArray(subpath)) throw new Error("unreachable")
           throw subpath.buildCodeFrameError(
-            `Namespace import is not supported by '${pkgName}'`,
+            `Namespace import is not supported by '${macrosSpecifier}'`
           )
         }
       })

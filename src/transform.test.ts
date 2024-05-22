@@ -4,11 +4,12 @@ import dedent from "dedent"
 import { name as pkgName } from "../package.json"
 import { transform } from "./transform"
 
+const macrosSpecifier = `${pkgName}/macros`
 const macros = ["serverOnly$", "clientOnly$"] as const
 
 describe("serverOnly$", () => {
   const source = dedent`
-    import { serverOnly$ } from "${pkgName}"
+    import { serverOnly$ } from "${macrosSpecifier}"
 
     export const message = serverOnly$("server only")
   `
@@ -30,7 +31,7 @@ describe("serverOnly$", () => {
 
 describe("clientOnly$", () => {
   const source = dedent`
-    import { clientOnly$ } from "${pkgName}"
+    import { clientOnly$ } from "${macrosSpecifier}"
 
     export const message = clientOnly$("client only")
   `
@@ -52,7 +53,7 @@ describe("clientOnly$", () => {
 
 describe("complex", () => {
   const source = dedent`
-    import { serverOnly$, clientOnly$ } from "${pkgName}"
+    import { serverOnly$, clientOnly$ } from "${macrosSpecifier}"
     import { a } from "server-only"
     import { b } from "client-only"
 
@@ -94,13 +95,13 @@ describe("complex", () => {
 for (const macro of macros) {
   test(`exactly one argument / ${macro}`, () => {
     const source = dedent`
-      import { ${macro} } from "${pkgName}"
+      import { ${macro} } from "${macrosSpecifier}"
 
       export const message = ${macro}()
     `
     for (const ssr of [false, true]) {
       expect(() => transform(source, "", { ssr })).toThrow(
-        `'${macro}' must take exactly one argument`,
+        `'${macro}' must take exactly one argument`
       )
     }
   })
@@ -109,19 +110,19 @@ for (const macro of macros) {
 for (const macro of macros) {
   test(`alias / ${macro}`, () => {
     const source = dedent`
-      import { ${macro} as x } from "${pkgName}"
+      import { ${macro} as x } from "${macrosSpecifier}"
 
       export const message = x("hello")
     `
     expect(transform(source, "", { ssr: false }).code).toBe(
       macro === "serverOnly$"
         ? `export const message = undefined;`
-        : `export const message = "hello";`,
+        : `export const message = "hello";`
     )
     expect(transform(source, "", { ssr: true }).code).toBe(
       macro === "serverOnly$"
         ? `export const message = "hello";`
-        : `export const message = undefined;`,
+        : `export const message = undefined;`
     )
   })
 }
@@ -129,7 +130,7 @@ for (const macro of macros) {
 for (const macro of macros) {
   test(`no dynamic / ${macro}`, () => {
     const source = dedent`
-      import { ${macro} as x } from "${pkgName}"
+      import { ${macro} as x } from "${macrosSpecifier}"
 
       const z = x
 
@@ -137,7 +138,7 @@ for (const macro of macros) {
     `
     for (const ssr of [false, true]) {
       expect(() => transform(source, "", { ssr })).toThrow(
-        "'x' macro cannot be manipulated at runtime as it must be statically analyzable",
+        "'x' macro cannot be manipulated at runtime as it must be statically analyzable"
       )
     }
   })
@@ -146,13 +147,13 @@ for (const macro of macros) {
 test("no namespace import", () => {
   for (const macro of macros) {
     const source = dedent`
-      import * as envOnly from "${pkgName}"
+      import * as envOnly from "${macrosSpecifier}"
 
       export const message = envOnly.${macro}("server only")
     `
     for (const ssr of [false, true]) {
       expect(() => transform(source, "", { ssr })).toThrow(
-        `Namespace import is not supported by '${pkgName}'`,
+        `Namespace import is not supported by '${macrosSpecifier}'`
       )
     }
   }
@@ -161,7 +162,7 @@ test("no namespace import", () => {
 test("only eliminate newly unreferenced identifiers", () => {
   for (const macro of macros) {
     const source = dedent`
-      import { ${macro} } from "${pkgName}"
+      import { ${macro} } from "${macrosSpecifier}"
       import { dep } from "dep"
 
       const compute = () => dep() + 1
@@ -177,7 +178,7 @@ test("only eliminate newly unreferenced identifiers", () => {
     `
     expect(
       transform(source, "", { ssr: macro === "serverOnly$" ? false : true })
-        .code,
+        .code
     ).toBe(expected)
   }
 })
