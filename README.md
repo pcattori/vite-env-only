@@ -10,94 +10,73 @@ Minimal Vite plugin for for isolating server-only and client-only code.
 npm install -D vite-env-only
 ```
 
-## Setup
+## Deny Imports
+
+Prevents specific packages and files from being included in the client or server bundle
+by throwing an error at build-time when a matching import would have been included.
 
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite"
-import envOnly from "vite-env-only"
-
-export default defineConfig({
-  plugins: [envOnly()],
-})
-```
-
-## Options
-
-### `denyImports`
-
-Configures validation of import specifiers that should not be present on the client or server.
-Validation is performed against the raw import specifier in the source code.
-Uses [micromatch][micromatch] for pattern matching globs.
-
-```ts
-{
-  denyImports?: {
-    client?: Array<string | RegExp>,
-    server?: Array<string | RegExp>
-  }
-}
-```
-
-For example:
-
-```ts
-// vite.config.ts
-import { defineConfig } from "vite"
-import envOnly from "vite-env-only"
+import { denyImports } from "vite-env-only"
 
 export default defineConfig({
   plugins: [
-    envOnly({
-      denyImports: {
-        client: ["fs-extra", /^node:/],
+    denyImports({
+      client: {
+        specifiers: ["fs-extra", /^node:/, "@prisma/*"],
+        files: ["**/.server/*", "**/*.server.*"],
+      },
+      server: {
+        specifiers: ["jquery"],
       },
     }),
   ],
 })
 ```
 
-### `denyFiles`
-
-Configures validation of files that should not be present on the client or server.
-Validation is performed against the resolved and normalized root-relative file path.
-Uses [micromatch][micromatch] for pattern matching globs.
-
 ```ts
 {
-  denyFiles?: {
-    client?: Array<string | RegExp>,
-    server?: Array<string | RegExp>
+  client?: {
+    specifiers?: Array<string | RegExp>,
+    files?: Array<string | RegExp>
+  },
+  server?: {
+    specifiers?: Array<string | RegExp>,
+    files?: Array<string | RegExp>
   }
 }
 ```
 
-For example:
+### `specifiers`
 
-```ts
-// vite.config.ts
-import { defineConfig } from "vite"
-import envOnly from "vite-env-only"
+Matching is performed against the raw import specifier in the source code.
+Match patterns can be:
 
-export default defineConfig({
-  plugins: [
-    envOnly({
-      denyFiles: {
-        client: [
-          // Deny all files with a `.server` suffix
-          "**/*.server.*",
-          // Deny all files nested within a `.server` directory
-          "**/.server/**/*",
-          // Deny a specific file
-          "src/secrets.ts",
-        ],
-      },
-    }),
-  ],
-})
-```
+- String literal for exact matches
+- Globs via [micromatch][micromatch]
+- `RegExp`s
+
+### `files`
+
+Matching is performed against the resolved and normalized root-relative file path.
+Match patterns can be:
+
+- String literal for exact matches
+- Globs via [micromatch][micromatch]
+- `RegExp`s
 
 ## Macros
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnlyMacros from "vite-env-only"
+
+export default defineConfig({
+  plugins: [envOnlyMacros()],
+})
+```
 
 All macros can be imported within your app code from `"vite-env-only/macros"`.
 
