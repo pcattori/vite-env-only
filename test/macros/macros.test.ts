@@ -1,7 +1,7 @@
 import * as vite from "vite"
 import { describe, test, expect } from "vitest"
 import path from "node:path"
-import envOnly from "../../src"
+import { envOnlyMacros } from "../../src"
 
 describe("macros", () => {
   const root = __dirname
@@ -28,7 +28,7 @@ describe("macros", () => {
         },
       },
     },
-    plugins: [envOnly()],
+    plugins: [envOnlyMacros()],
   })
 
   test("serverOnly$", async () => {
