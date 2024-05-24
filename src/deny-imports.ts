@@ -28,7 +28,7 @@ function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
   let root: string
   let command: ResolvedConfig["command"]
   return {
-    name: "vite-plugin-deny-imports-specifiers",
+    name: "deny-imports/specifiers",
     enforce: "pre",
     configResolved(config) {
       root = config.root
@@ -56,7 +56,7 @@ function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
 function denyImportFiles(denyFiles: EnvPatterns): PluginOption {
   let root: string
   let command: ResolvedConfig["command"]
-  let name = "vite-plugin-deny-imports-files"
+  let name = "deny-imports/files"
   return {
     name,
     enforce: "pre",

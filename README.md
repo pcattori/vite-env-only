@@ -2,7 +2,7 @@
 
 # vite-env-only
 
-Minimal Vite plugin for for isolating server-only and client-only code.
+Vite plugins for isolating server-only and client-only code
 
 ## Install
 

@@ -8,7 +8,7 @@ export { default as denyImports } from "./deny-imports"
 export function envOnlyMacros(): PluginOption[] {
   return [
     {
-      name: "vite-plugin-env-only-macros",
+      name: "env-only-macros",
       async transform(code, id, options) {
         if (!code.includes(pkgName)) return
         return transform(code, id, { ssr: options?.ssr === true })
