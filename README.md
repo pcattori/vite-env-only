@@ -2,7 +2,7 @@
 
 # vite-env-only
 
-Minimal Vite plugin for for isolating server-only and client-only code.
+Vite plugins for isolating server-only and client-only code
 
 ## Install
 
@@ -71,7 +71,7 @@ Match patterns can be:
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite"
-import envOnlyMacros from "vite-env-only"
+import { envOnlyMacros } from "vite-env-only"
 
 export default defineConfig({
   plugins: [envOnlyMacros()],

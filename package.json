@@ -1,14 +1,16 @@
 {
   "name": "vite-env-only",
   "version": "2.4.1",
-  "description": "Minimal Vite plugin for for isolating server-only and client-only code",
+  "description": "Vite plugins for isolating server-only and client-only code",
   "keywords": [
     "vite-plugin",
     "env",
     "only",
     "client",
     "server",
-    "macro"
+    "macro",
+    "deny",
+    "imports"
   ],
   "repository": "pcattori/vite-env-only",
   "author": "pcattori",

@@ -4,15 +4,29 @@
 
 Separate named export for `denyImports` plugin that replaces the old `denyImports` and `denyFiles` options.
 
-## `specifiers`
+For example, if you had this:
 
-Replaces the old `denyImports` option from the default exported plugin.
-Matching is performed against the raw import specifier in the source code.
+```ts
+// vite.config.ts
+import { defineConfig } from "vite"
+import envOnly from "vite-env-only"
 
-## `files`
+export default defineConfig({
+  plugins: [
+    envOnly({
+      denyImports: {
+        client: ["fs-extra", /^node:/, "@prisma/*"],
+        server: ["jquery"],
+      },
+      denyFiles: {
+        client: ["**/.server/*", "**/*.server.*"],
+      },
+    }),
+  ],
+})
+```
 
-Replaces the old `denyFiles` option of the default exported plugin.
-Matching is performed against the resolved and normalized root-relative file path.
+You should now write it like so:
 
 ```ts
 // vite.config.ts
@@ -33,6 +47,16 @@ export default defineConfig({
   ],
 })
 ```
+
+## `specifiers`
+
+Replaces the old `denyImports` option from the old macros plugin.
+Matching is performed against the raw import specifier in the source code.
+
+## `files`
+
+Replaces the old `denyFiles` option of the old macros plugin.
+Matching is performed against the resolved and normalized root-relative file path.
 
 ```ts
 {
