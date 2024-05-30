@@ -15,6 +15,7 @@ const config = ({
   options: Parameters<typeof denyImports>[0]
 }): vite.InlineConfig => ({
   root: __dirname,
+  logLevel: "silent",
   build: {
     ssr,
     minify: false,
