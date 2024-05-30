@@ -11,9 +11,9 @@ import {
 
 import { name as pkgName } from "../package.json"
 import {
+  deadCodeElimination,
   findReferencedIdentifiers,
-  eliminateUnreferencedIdentifiers,
-} from "./dce"
+} from "babel-dead-code-elimination"
 
 const macrosSpecifier = `${pkgName}/macros`
 
@@ -108,6 +108,6 @@ export const transform = (
       })
     },
   })
-  eliminateUnreferencedIdentifiers(ast, refs)
+  deadCodeElimination(ast, refs)
   return generate(ast, { sourceMaps: true, sourceFileName: id }, code)
 }
