@@ -88,7 +88,7 @@ export const transform = (
       ) {
         return
       }
-      if (t.isImportSpecifier(path.parent)) return
+      if (t.isCallExpression(path.parent)) return
       throw path.buildCodeFrameError(
         `'${path.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`
       )
