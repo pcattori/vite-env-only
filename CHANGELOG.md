@@ -1,5 +1,18 @@
 # vite-env-only
 
+## 3.0.2
+
+### Patch Changes
+
+- 69d739d: Better dead code elimination
+
+  Upgrading to babel-dead-code-eliminiation@1.0.5 as it contains fixes for:
+
+  - Object destructuring
+  - Array destructuring
+  - Function expressions
+  - Arrow function expressions
+
 ## 3.0.1
 
 ### Patch Changes
