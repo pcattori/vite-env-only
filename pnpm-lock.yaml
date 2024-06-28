@@ -24,8 +24,8 @@ importers:
         specifier: ^7.23.6
         version: 7.23.6
       babel-dead-code-elimination:
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.5
+        version: 1.0.5
       micromatch:
         specifier: ^4.0.5
         version: 4.0.5
@@ -592,8 +592,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  babel-dead-code-elimination@1.0.0:
-    resolution: {integrity: sha512-6Z905/y0n1Hq15U0bdbUosrLPGD1s7G9Wj2GFBeLawO/6h4CCze6GWn3b1YAHFwXw1E7R0PieuGB3gkQOGP9TQ==}
+  babel-dead-code-elimination@1.0.5:
+    resolution: {integrity: sha512-YU83EN8SngaePQAJ+Y1AUIRFOr+2o/L5ez6JQzcCd9r19GtYqa9vm4se33t4wVcSbOqATUfdOJilp403DT61ow==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -2597,7 +2597,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  babel-dead-code-elimination@1.0.0:
+  babel-dead-code-elimination@1.0.5:
     dependencies:
       '@babel/core': 7.23.7
       '@babel/parser': 7.23.6
