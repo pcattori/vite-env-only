@@ -1,5 +1,13 @@
 # vite-env-only
 
+## 3.0.3
+
+### Patch Changes
+
+- 2b5d238: Better dead code elimination
+
+  Upgrading to babel-dead-code-elimination@1.0.6 as it contains fixes for function parameters.
+
 ## 3.0.2
 
 ### Patch Changes
