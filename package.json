@@ -33,7 +33,7 @@
     "test": "vitest",
     "changeset": "changeset"
   },
-  "packageManager": "pnpm@9.1.1",
+  "packageManager": "pnpm@10.28.2",
   "peerDependencies": {
     "vite": "*"
   },
