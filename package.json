@@ -23,7 +23,7 @@
   },
   "scripts": {
     "typecheck": "tsc",
-    "build": "tsup",
+    "build": "tsdown",
     "test": "vitest",
     "changeset": "changeset"
   },
@@ -39,7 +39,7 @@
     "@types/micromatch": "^4.0.7",
     "@types/node": "^20.10.6",
     "dedent": "^1.5.1",
-    "tsup": "^8.0.1",
+    "tsdown": "^0.9.0",
     "typescript": "^5.4.5",
     "vite": "^5.0.11",
     "vitest": "^1.1.2"
