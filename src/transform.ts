@@ -1,13 +1,8 @@
 import * as babel from "@babel/core"
-import {
-  generate,
-  parse,
-  traverse,
-  t,
-  type NodePath,
-  type Binding,
-  type GeneratorResult,
-} from "./babel"
+import { parse } from "@babel/parser"
+import traverse, { type NodePath, type Binding } from "@babel/traverse"
+import generate, { type GeneratorResult } from "@babel/generator"
+import * as t from "@babel/types"
 
 import { name as pkgName } from "../package.json"
 import {
