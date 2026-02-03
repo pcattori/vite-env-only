@@ -27,13 +27,11 @@ export default function denyImports(options: Options): PluginOption[] {
 
 function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
   let root: string
-  let command: ResolvedConfig["command"]
   return {
     name: "deny-imports/specifiers",
     enforce: "pre",
     configResolved(config) {
       root = config.root
-      command = config.command
     },
     resolveId(id, importer, options) {
       if (!importer) return
