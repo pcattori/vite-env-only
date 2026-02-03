@@ -28,7 +28,7 @@ export default function denyImports(options: Options): PluginOption[] {
 function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
   let root: string
   return {
-    name: "deny-imports/specifiers",
+    name: "vite-env-only/deny-imports/specifiers",
     enforce: "pre",
     configResolved(config) {
       root = config.root
@@ -55,7 +55,7 @@ function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
 function denyImportFiles(denyFiles: EnvPatterns): PluginOption {
   let root: string
   let command: ResolvedConfig["command"]
-  let name = "deny-imports/files"
+  let name = "vite-env-only/deny-imports/files"
   return {
     name,
     enforce: "pre",

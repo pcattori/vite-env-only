@@ -3,12 +3,10 @@ import { type PluginOption } from "vite"
 import pkg from "../package.json"
 import { transform } from "./transform"
 
-export { default as denyImports } from "./deny-imports"
-
-export function envOnlyMacros(): PluginOption[] {
+export default function envOnly(): PluginOption[] {
   return [
     {
-      name: "env-only-macros",
+      name: "vite-env-only/macro",
       async transform(code, id, options) {
         if (!code.includes(pkg.name)) return
         return transform(code, id, { ssr: options?.ssr === true })
