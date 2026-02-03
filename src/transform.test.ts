@@ -4,14 +4,13 @@ import dedent from "dedent"
 import pkg from "../package.json"
 import { transform } from "./transform"
 
-const macrosSpecifier = `${pkg.name}/macros`
-const macros = ["serverOnly$", "clientOnly$"] as const
+const macroSpecifier = `${pkg.name}/macro`
 
-describe("serverOnly$", () => {
+describe('only("server", ...)', () => {
   const source = dedent`
-    import { serverOnly$ } from "${macrosSpecifier}"
+    import { only } from "${macroSpecifier}"
 
-    export const message = serverOnly$("server only")
+    export const message = only("server", "server only")
   `
 
   test("ssr:true", () => {
@@ -29,11 +28,11 @@ describe("serverOnly$", () => {
   })
 })
 
-describe("clientOnly$", () => {
+describe('only("client", ...)', () => {
   const source = dedent`
-    import { clientOnly$ } from "${macrosSpecifier}"
+    import { only } from "${macroSpecifier}"
 
-    export const message = clientOnly$("client only")
+    export const message = only("client", "client only")
   `
 
   test("ssr:true", () => {
@@ -53,16 +52,16 @@ describe("clientOnly$", () => {
 
 describe("complex", () => {
   const source = dedent`
-    import { serverOnly$, clientOnly$ } from "${macrosSpecifier}"
+    import { only } from "${macroSpecifier}"
     import { a } from "server-only"
     import { b } from "client-only"
 
-    export const c = serverOnly$("server only")
-    const d = serverOnly$(a)
+    export const c = only("server", "server only")
+    const d = only("server", a)
     console.log(d)
 
-    export const e = clientOnly$("client only")
-    const f = clientOnly$(b)
+    export const e = only("client", "client only")
+    const f = only("client", b)
     console.log(f)
   `
 
@@ -92,93 +91,72 @@ describe("complex", () => {
   })
 })
 
-for (const macro of macros) {
-  test(`exactly one argument / ${macro}`, () => {
-    const source = dedent`
-      import { ${macro} } from "${macrosSpecifier}"
+test("exactly two arguments", () => {
+  const source = dedent`
+      import { only } from "${macroSpecifier}"
 
-      export const message = ${macro}()
+      export const message = only()
     `
-    for (const ssr of [false, true]) {
-      expect(() => transform(source, "", { ssr })).toThrow(
-        `'${macro}' must take exactly one argument`
-      )
-    }
-  })
-}
+  expect(() => transform(source, "", { ssr: false })).toThrow(
+    `'only' must take exactly two arguments`
+  )
+})
 
-for (const macro of macros) {
-  test(`alias / ${macro}`, () => {
-    const source = dedent`
-      import { ${macro} as x } from "${macrosSpecifier}"
+test("alias", () => {
+  const source = dedent`
+      import { only as x } from "${macroSpecifier}"
 
-      export const message = x("hello")
+      export const message = x("client", "hello")
     `
-    expect(transform(source, "", { ssr: false }).code).toBe(
-      macro === "serverOnly$"
-        ? `export const message = undefined;`
-        : `export const message = "hello";`
-    )
-    expect(transform(source, "", { ssr: true }).code).toBe(
-      macro === "serverOnly$"
-        ? `export const message = "hello";`
-        : `export const message = undefined;`
-    )
-  })
-}
+  expect(transform(source, "", { ssr: false }).code).toBe(
+    `export const message = "hello";`
+  )
+  expect(transform(source, "", { ssr: true }).code).toBe(
+    `export const message = undefined;`
+  )
+})
 
-for (const macro of macros) {
-  test(`no dynamic / ${macro}`, () => {
-    const source = dedent`
-      import { ${macro} as x } from "${macrosSpecifier}"
+test("no dynamic", () => {
+  const source = dedent`
+      import { only as x } from "${macroSpecifier}"
 
       const z = x
 
-      export const message = z("server only")
+      export const message = z("server", "server only")
     `
-    for (const ssr of [false, true]) {
-      expect(() => transform(source, "", { ssr })).toThrow(
-        "'x' macro cannot be manipulated at runtime as it must be statically analyzable"
-      )
-    }
-  })
-}
-
-test("no namespace import", () => {
-  for (const macro of macros) {
-    const source = dedent`
-      import * as envOnly from "${macrosSpecifier}"
-
-      export const message = envOnly.${macro}("server only")
-    `
-    for (const ssr of [false, true]) {
-      expect(() => transform(source, "", { ssr })).toThrow(
-        `Namespace import is not supported by '${macrosSpecifier}'`
-      )
-    }
+  for (const ssr of [false, true]) {
+    expect(() => transform(source, "", { ssr })).toThrow(
+      "'x' macro cannot be manipulated at runtime as it must be statically analyzable"
+    )
   }
 })
 
+test("no namespace import", () => {
+  const source = dedent`
+    import * as envOnly from "${macroSpecifier}"
+
+    export const message = envOnly.only("server", "server only")
+  `
+  expect(() => transform(source, "", { ssr: false })).toThrow(
+    `Namespace import is not supported by '${macroSpecifier}'`
+  )
+})
+
 test("only eliminate newly unreferenced identifiers", () => {
-  for (const macro of macros) {
-    const source = dedent`
-      import { ${macro} } from "${macrosSpecifier}"
+  const source = dedent`
+    import { only } from "${macroSpecifier}"
       import { dep } from "dep"
 
       const compute = () => dep() + 1
-      export const a = ${macro}(compute())
+      export const a = only("server", compute())
 
       const _compute = () => 1
       const _b = _compute()
     `
-    const expected = dedent`
+  const expected = dedent`
       export const a = undefined;
       const _compute = () => 1;
       const _b = _compute();
     `
-    expect(
-      transform(source, "", { ssr: macro === "serverOnly$" ? false : true })
-        .code
-    ).toBe(expected)
-  }
+  expect(transform(source, "", { ssr: false }).code).toBe(expected)
 })

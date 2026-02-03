@@ -9,6 +9,16 @@ export default function envOnly(): PluginOption[] {
       name: "vite-env-only/macro",
       async transform(code, id, options) {
         if (!code.includes(pkg.name)) return
+        if (id === `${pkg.name}/env`) {
+          throw Error(
+            [
+              `${pkg.name}: '${pkg.name}/env' is not allowed within Vite`,
+              "",
+              `'${pkg.name}/env' is designed for use in script entry points, not within app code`,
+              "👉 https://github.com/pcattori/vite-env-only#env",
+            ].join("\n")
+          )
+        }
         return transform(code, id, { ssr: options?.ssr === true })
       },
     },
