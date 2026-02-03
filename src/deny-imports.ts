@@ -1,18 +1,19 @@
 import path from "node:path"
 
+import micromatch from "micromatch"
 import { normalizePath, type PluginOption, type ResolvedConfig } from "vite"
 
 import pkg from "../package.json"
 import { type Env } from "./env"
-import { type Pattern, findMatch } from "./pattern"
 
+type Pattern = string | RegExp
 type EnvPatterns = Partial<Record<Env, Pattern[]>>
 
 type Options = Partial<
   Record<Env, { specifiers?: Pattern[]; files?: Pattern[] }>
 >
 
-export default function (options: Options): PluginOption[] {
+export default function denyImports(options: Options): PluginOption[] {
   let denySpecifiers: EnvPatterns = {}
   let denyFiles: EnvPatterns = {}
 
@@ -102,4 +103,14 @@ function denyImportFiles(denyFiles: EnvPatterns): PluginOption {
 
 function normalizeRelativePath(root: string, filePath: string) {
   return normalizePath(path.relative(root, filePath))
+}
+
+function findMatch(id: string, patterns: Pattern[] = []): Pattern | null {
+  for (let pattern of patterns) {
+    let matchGlob =
+      typeof pattern === "string" && micromatch.isMatch(id, pattern)
+    let matchRegex = pattern instanceof RegExp && id.match(pattern)
+    if (matchGlob || matchRegex) return pattern
+  }
+  return null
 }
