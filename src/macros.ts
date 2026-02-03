@@ -1,13 +1,13 @@
-import { name as pkgName } from "../package.json"
+import pkg from "../package.json"
 
 const maybe = <T>(_: T): T | undefined => {
   throw Error(
     [
-      `${pkgName}: unreplaced macro`,
+      `${pkg.name}: unreplaced macro`,
       "",
-      `Did you forget to add the '${pkgName}' plugin to your Vite config?`,
+      `Did you forget to add the '${pkg.name}' plugin to your Vite config?`,
       "👉 https://github.com/pcattori/vite-env-only#install",
-    ].join("\n"),
+    ].join("\n")
   )
 }
 

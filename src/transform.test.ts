@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest"
 import dedent from "dedent"
 
-import { name as pkgName } from "../package.json"
+import pkg from "../package.json"
 import { transform } from "./transform"
 
-const macrosSpecifier = `${pkgName}/macros`
+const macrosSpecifier = `${pkg.name}/macros`
 const macros = ["serverOnly$", "clientOnly$"] as const
 
 describe("serverOnly$", () => {

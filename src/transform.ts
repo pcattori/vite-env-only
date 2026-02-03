@@ -4,13 +4,13 @@ import traverse, { type NodePath, type Binding } from "@babel/traverse"
 import generate, { type GeneratorResult } from "@babel/generator"
 import * as t from "@babel/types"
 
-import { name as pkgName } from "../package.json"
+import pkg from "../package.json"
 import {
   deadCodeElimination,
   findReferencedIdentifiers,
 } from "babel-dead-code-elimination"
 
-const macrosSpecifier = `${pkgName}/macros`
+const macrosSpecifier = `${pkg.name}/macros`
 
 const isMacroBinding = (binding: Binding, macro: string): boolean => {
   // import source
