@@ -1,7 +1,7 @@
 import * as vite from "vite"
 import { describe, test, expect } from "vitest"
 import path from "node:path"
-import { envOnlyMacros } from "../../src"
+import envOnly from "../../src/plugin"
 
 describe("macros", () => {
   const root = __dirname
@@ -29,10 +29,10 @@ describe("macros", () => {
         },
       },
     },
-    plugins: [envOnlyMacros()],
+    plugins: [envOnly()],
   })
 
-  test("serverOnly$", async () => {
+  test("server", async () => {
     const outDir = path.join(root, "dist/server")
     await vite.build(config({ ssr: true, outDir }))
 
@@ -42,7 +42,7 @@ describe("macros", () => {
     })
   })
 
-  test("clientOnly$", async () => {
+  test("client", async () => {
     const outDir = path.join(root, "dist/client")
     await vite.build(config({ ssr: false, outDir }))
 

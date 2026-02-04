@@ -17,8 +17,10 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./macros": "./dist/macros.js",
+    ".": "./dist/plugin.js",
+    "./deny-imports": "./dist/deny-imports.js",
+    "./env": "./dist/env.js",
+    "./macro": "./dist/macro.js",
     "./package.json": "./package.json"
   },
   "scripts": {
