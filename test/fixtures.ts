@@ -11,8 +11,7 @@ export const test = base.extend<{
     fs.mkdirSync(root, { recursive: true })
     const cwd = fs.mkdtempSync(path.join(root, "vitest-"))
     await use(cwd)
-    const result = task.result
-    if (result?.errors?.length === 0) {
+    if ((task.result?.errors?.length ?? 0) === 0) {
       fs.rmSync(cwd, { recursive: true, force: true })
     }
   },
