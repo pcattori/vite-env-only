@@ -2,7 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { test as base } from "vitest"
 
-const test = base.extend<{
+export const test = base.extend<{
   cwd: string
   files: (entries: Record<string, string>) => Promise<string>
 }>({
@@ -28,5 +28,3 @@ const test = base.extend<{
     await use(write)
   },
 })
-
-export default test

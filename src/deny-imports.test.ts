@@ -3,12 +3,12 @@ import path from "node:path"
 import dedent from "dedent"
 import * as vite from "vite"
 import { describe, expect } from "vitest"
-import test from "./fixtures"
+import { test } from "../test/fixtures"
 import denyImports, {
   DenyImportsFileError,
   DenyImportsSpecifierError,
-} from "../src/deny-imports"
-import { Env } from "../src/env"
+} from "./deny-imports"
+import { Env } from "./env"
 
 const FILES = {
   "lib/main.js": dedent`
