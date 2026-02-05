@@ -1,24 +1,36 @@
 import path from "node:path"
 
+import dedent from "dedent"
 import * as vite from "vite"
-import { describe, expect, test } from "vitest"
-
+import { describe, expect } from "vitest"
+import test from "./fixtures"
 import denyImports, {
   DenyImportsFileError,
   DenyImportsSpecifierError,
-} from "../../src/deny-imports"
-import { Env } from "../../src/env"
+} from "../src/deny-imports"
+import { Env } from "../src/env"
 
-const root = __dirname
+const FILES = {
+  "lib/main.js": dedent`
+    import * as denyMe from "./deny-me"
+
+    export default { denyMe }
+  `,
+  "lib/deny-me.js": dedent`
+    export default "deny me"
+  `,
+}
 
 const config = ({
+  root,
   ssr,
   options,
 }: {
+  root: string
   ssr: boolean
   options: Parameters<typeof denyImports>[0]
 }): vite.InlineConfig => ({
-  root: __dirname,
+  root,
   logLevel: "silent",
   build: {
     ssr,
@@ -45,10 +57,12 @@ describe("denyImports", () => {
     let ssr = env === "server"
     let otherEnv = env === "server" ? "client" : "server"
 
-    test(`specifiers / denied by exact match [${env}]`, async () => {
+    test(`specifiers / denied by exact match [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await expect(
         vite.build(
           config({
+            root,
             ssr,
             options: {
               [env]: { specifiers: ["./deny-me"] },
@@ -65,10 +79,12 @@ describe("denyImports", () => {
       )
     })
 
-    test(`specifiers / denied by regex [${env}]`, async () => {
+    test(`specifiers / denied by regex [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await expect(
         vite.build(
           config({
+            root,
             ssr,
             options: {
               [env]: { specifiers: [/^\.\/deny-me$/] },
@@ -85,9 +101,11 @@ describe("denyImports", () => {
       )
     })
 
-    test(`specifiers / ignores other envs [${env}]`, async () => {
+    test(`specifiers / ignores other envs [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await vite.build(
         config({
+          root,
           ssr,
           options: {
             [otherEnv]: { specifiers: [/^\.\/deny-me\.js$/] },
@@ -96,9 +114,11 @@ describe("denyImports", () => {
       )
     })
 
-    test(`specifiers / passes [${env}]`, async () => {
+    test(`specifiers / passes [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await vite.build(
         config({
+          root,
           ssr,
           options: {
             [env]: { specifiers: ["other", "**/other/*", /other/] },
@@ -107,10 +127,12 @@ describe("denyImports", () => {
       )
     })
 
-    test(`files / denied by exact match [${env}]`, async () => {
+    test(`files / denied by exact match [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await expect(
         vite.build(
           config({
+            root,
             ssr,
             options: {
               [env]: { files: ["lib/deny-me.js"] },
@@ -128,10 +150,12 @@ describe("denyImports", () => {
       )
     })
 
-    test(`files / denied by glob [${env}]`, async () => {
+    test(`files / denied by glob [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await expect(
         vite.build(
           config({
+            root,
             ssr,
             options: {
               [env]: { files: ["**/deny-me.*"] },
@@ -149,10 +173,12 @@ describe("denyImports", () => {
       )
     })
 
-    test(`files / denied by regex [${env}]`, async () => {
+    test(`files / denied by regex [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await expect(
         vite.build(
           config({
+            root,
             ssr,
             options: {
               [env]: { files: [/^lib\/deny-me\.js$/] },
@@ -170,9 +196,11 @@ describe("denyImports", () => {
       )
     })
 
-    test(`files / passes [${env}]`, async () => {
+    test(`files / passes [${env}]`, async ({ files }) => {
+      const root = await files(FILES)
       await vite.build(
         config({
+          root,
           ssr,
           options: {
             [env]: { files: ["other", "**/other/*", /other/] },
