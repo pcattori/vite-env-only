@@ -39,14 +39,12 @@ function denyImportSpecifiers(denySpecifiers: EnvPatterns): PluginOption {
       let env: Env = options?.ssr ? "server" : "client"
       let denialPattern = findMatch(id, denySpecifiers[env])
       if (denialPattern) {
-        let message = [
-          `[${pkg.name}] Import denied`,
-          ` - Denied by specifier pattern: ${denialPattern}`,
-          ` - Importer: ${normalizeRelativePath(root, importer)}`,
-          ` - Import: "${id}"`,
-          ` - Environment: ${env}`,
-        ].join("\n")
-        throw Error(message)
+        throw new DenyImportsSpecifierError({
+          pattern: denialPattern,
+          importer: normalizeRelativePath(root, importer),
+          import: id,
+          env,
+        })
       }
     },
   }
@@ -83,17 +81,13 @@ function denyImportFiles(denyFiles: EnvPatterns): PluginOption {
       let env: Env = options?.ssr ? "server" : "client"
       let denialPattern = findMatch(relativePath, denyFiles[env])
       if (denialPattern) {
-        let message = [
-          `[${pkg.name}] Import denied`,
-          ` - Denied by file pattern: ${denialPattern}`,
-          ...(importer
-            ? [` - Importer: ${normalizeRelativePath(root, importer)}`]
-            : []),
-          ` - Import: "${id}"`,
-          ` - Resolved: ${relativePath}`,
-          ` - Environment: ${env}`,
-        ].join("\n")
-        throw Error(message)
+        throw new DenyImportsFileError({
+          pattern: denialPattern,
+          importer: importer ? normalizeRelativePath(root, importer) : undefined,
+          import: id,
+          resolved: relativePath,
+          env,
+        })
       }
     },
   }
@@ -111,4 +105,54 @@ function findMatch(id: string, patterns: Pattern[] = []): Pattern | null {
     if (matchGlob || matchRegex) return pattern
   }
   return null
+}
+
+export class DenyImportsSpecifierError extends Error {
+  details: {
+    pattern: Pattern
+    importer: string
+    import: string
+    env: Env
+  }
+
+  constructor(details: DenyImportsSpecifierError["details"]) {
+    const { pattern, importer, import: importSpecifier, env } = details
+    super(
+      [
+        `[${pkg.name}] Import denied`,
+        ` - Denied by specifier pattern: ${pattern}`,
+        ` - Importer: ${importer}`,
+        ` - Import: "${importSpecifier}"`,
+        ` - Environment: ${env}`,
+      ].join("\n"),
+    )
+    this.name = "DenyImportsSpecifierError"
+    this.details = details
+  }
+}
+
+export class DenyImportsFileError extends Error {
+  details: {
+    pattern: Pattern
+    importer: string | undefined
+    import: string
+    resolved: string
+    env: Env
+  }
+
+  constructor(details: DenyImportsFileError["details"]) {
+    const { pattern, importer, import: importSpecifier, resolved, env } = details
+    super(
+      [
+        `[${pkg.name}] Import denied`,
+        ` - Denied by file pattern: ${pattern}`,
+        ...(importer ? [` - Importer: ${importer}`] : []),
+        ` - Import: "${importSpecifier}"`,
+        ` - Resolved: ${resolved}`,
+        ` - Environment: ${env}`,
+      ].join("\n"),
+    )
+    this.name = "DenyImportsFileError"
+    this.details = details
+  }
 }
