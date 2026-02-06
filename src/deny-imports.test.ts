@@ -1,5 +1,3 @@
-import path from "node:path"
-
 import dedent from "dedent"
 import * as vite from "vite"
 import { describe, expect } from "vitest"
@@ -11,202 +9,173 @@ import denyImports, {
 import { Env } from "./env"
 
 const FILES = {
-  "lib/main.js": dedent`
+  "lib/index.ts": dedent`
     import * as denyMe from "./deny-me"
 
     export default { denyMe }
   `,
-  "lib/deny-me.js": dedent`
+  "lib/deny-me.ts": dedent`
     export default "deny me"
   `,
 }
 
-const config = ({
-  root,
-  ssr,
-  options,
-}: {
-  root: string
-  ssr: boolean
-  options: Parameters<typeof denyImports>[0]
-}): vite.InlineConfig => ({
-  root,
-  logLevel: "silent",
-  build: {
-    ssr,
-    minify: false,
-    lib: {
-      entry: "lib/main.js",
-      formats: ["es"],
-    },
-    rollupOptions: {
-      output: {
-        dir: ssr
-          ? path.join(root, "dist/server")
-          : path.join(root, "dist/client"),
-        entryFileNames: "index.js",
-      },
-    },
-  },
-  plugins: [denyImports(options)],
-})
-
 describe("denyImports", () => {
   let envs: Array<Env> = ["server", "client"]
   for (let env of envs) {
-    let ssr = env === "server"
-    let otherEnv = env === "server" ? "client" : "server"
+    let otherEnv: Env = env === "server" ? "client" : "server"
 
-    test(`specifiers / denied by exact match [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await expect(
-        vite.build(
-          config({
-            root,
-            ssr,
-            options: {
-              [env]: { specifiers: ["./deny-me"] },
-            },
-          }),
-        ),
-      ).rejects.toThrowError(
+    test(`specifiers / denied by exact match [${env}]`, async ({
+      files,
+      viteConfig,
+    }) => {
+      await files(FILES)
+
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [denyImports({ [env]: { specifiers: ["./deny-me"] } })],
+      })
+
+      await expect(vite.build(config)).rejects.toThrowError(
         new DenyImportsSpecifierError({
           pattern: "./deny-me",
-          importer: "lib/main.js",
+          importer: "lib/index.ts",
           import: "./deny-me",
           env,
         }),
       )
     })
 
-    test(`specifiers / denied by regex [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await expect(
-        vite.build(
-          config({
-            root,
-            ssr,
-            options: {
-              [env]: { specifiers: [/^\.\/deny-me$/] },
-            },
-          }),
-        ),
-      ).rejects.toThrowError(
+    test(`specifiers / denied by regex [${env}]`, async ({
+      files,
+      viteConfig,
+    }) => {
+      await files(FILES)
+
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [denyImports({ [env]: { specifiers: [/^\.\/deny-me$/] } })],
+      })
+
+      await expect(vite.build(config)).rejects.toThrowError(
         new DenyImportsSpecifierError({
           pattern: /^\.\/deny-me$/,
-          importer: "lib/main.js",
+          importer: "lib/index.ts",
           import: "./deny-me",
           env,
         }),
       )
     })
 
-    test(`specifiers / ignores other envs [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await vite.build(
-        config({
-          root,
-          ssr,
-          options: {
-            [otherEnv]: { specifiers: [/^\.\/deny-me\.js$/] },
-          },
-        }),
-      )
+    test(`specifiers / ignores other envs [${env}]`, async ({
+      files,
+      viteConfig,
+    }) => {
+      await files(FILES)
+
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [
+          denyImports({ [otherEnv]: { specifiers: [/^\.\/deny-me$/] } }),
+        ],
+      })
+
+      await vite.build(config)
     })
 
-    test(`specifiers / passes [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await vite.build(
-        config({
-          root,
-          ssr,
-          options: {
+    test(`specifiers / passes [${env}]`, async ({ files, viteConfig }) => {
+      await files(FILES)
+
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [
+          denyImports({
             [env]: { specifiers: ["other", "**/other/*", /other/] },
-          },
-        }),
-      )
+          }),
+        ],
+      })
+      await vite.build(config)
     })
 
-    test(`files / denied by exact match [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await expect(
-        vite.build(
-          config({
-            root,
-            ssr,
-            options: {
-              [env]: { files: ["lib/deny-me.js"] },
-            },
-          }),
-        ),
-      ).rejects.toThrowError(
+    test(`files / denied by exact match [${env}]`, async ({
+      files,
+      viteConfig,
+    }) => {
+      await files(FILES)
+
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [denyImports({ [env]: { files: ["lib/deny-me.ts"] } })],
+      })
+      await expect(vite.build(config)).rejects.toThrowError(
         new DenyImportsFileError({
-          pattern: "lib/deny-me.js",
-          importer: "lib/main.js",
+          pattern: "lib/deny-me.ts",
+          importer: "lib/index.ts",
           import: "./deny-me",
-          resolved: "lib/deny-me.js",
+          resolved: "lib/deny-me.ts",
           env,
         }),
       )
     })
 
-    test(`files / denied by glob [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await expect(
-        vite.build(
-          config({
-            root,
-            ssr,
-            options: {
-              [env]: { files: ["**/deny-me.*"] },
-            },
-          }),
-        ),
-      ).rejects.toThrowError(
+    test(`files / denied by glob [${env}]`, async ({ files, viteConfig }) => {
+      await files(FILES)
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [denyImports({ [env]: { files: ["**/deny-me.*"] } })],
+      })
+      await expect(vite.build(config)).rejects.toThrowError(
         new DenyImportsFileError({
           pattern: "**/deny-me.*",
-          importer: "lib/main.js",
+          importer: "lib/index.ts",
           import: "./deny-me",
-          resolved: "lib/deny-me.js",
+          resolved: "lib/deny-me.ts",
           env,
         }),
       )
     })
 
-    test(`files / denied by regex [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await expect(
-        vite.build(
-          config({
-            root,
-            ssr,
-            options: {
-              [env]: { files: [/^lib\/deny-me\.js$/] },
-            },
-          }),
-        ),
-      ).rejects.toThrowError(
+    test(`files / denied by regex [${env}]`, async ({ files, viteConfig }) => {
+      await files(FILES)
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [denyImports({ [env]: { files: [/^lib\/deny-me\.ts$/] } })],
+      })
+      await expect(vite.build(config)).rejects.toThrowError(
         new DenyImportsFileError({
-          pattern: /^lib\/deny-me\.js$/,
-          importer: "lib/main.js",
+          pattern: /^lib\/deny-me\.ts$/,
+          importer: "lib/index.ts",
           import: "./deny-me",
-          resolved: "lib/deny-me.js",
+          resolved: "lib/deny-me.ts",
           env,
         }),
       )
     })
 
-    test(`files / passes [${env}]`, async ({ files }) => {
-      const root = await files(FILES)
-      await vite.build(
-        config({
-          root,
-          ssr,
-          options: {
-            [env]: { files: ["other", "**/other/*", /other/] },
-          },
-        }),
-      )
+    test(`files / passes [${env}]`, async ({ files, viteConfig }) => {
+      await files(FILES)
+      const config = viteConfig({
+        env,
+        entry: "lib/index.ts",
+        outputFile: "dist/index.js",
+        plugins: [
+          denyImports({ [env]: { files: ["other", "**/other/*", /other/] } }),
+        ],
+      })
+      await vite.build(config)
     })
   }
 
