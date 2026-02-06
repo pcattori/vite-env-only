@@ -3,12 +3,6 @@ import { type PluginOption } from "vite"
 import pkg from "../package.json"
 import { transform } from "./transform"
 
-export {
-  default as denyImports,
-  DenyImportsFileError,
-  DenyImportsSpecifierError,
-} from "./deny-imports"
-
 export function envOnlyMacros(): PluginOption[] {
   return [
     {
