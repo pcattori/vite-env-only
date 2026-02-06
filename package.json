@@ -18,6 +18,7 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
+    "./deny-imports": "./dist/deny-imports.js",
     "./macros": "./dist/macros.js",
     "./package.json": "./package.json"
   },

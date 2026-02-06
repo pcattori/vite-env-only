@@ -18,7 +18,7 @@ by throwing an error at build-time when a matching import would have been includ
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite"
-import { denyImports } from "vite-env-only"
+import { denyImports } from "vite-env-only/deny-imports"
 
 export default defineConfig({
   plugins: [
