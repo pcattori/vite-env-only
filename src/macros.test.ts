@@ -13,36 +13,8 @@ describe("macros", () => {
     expect(() => clientOnly$("world")).toThrowError(/unreplaced macro/)
   })
 
-  const config = ({
-    root,
-    ssr,
-    outDir,
-  }: {
-    root: string
-    ssr: boolean
-    outDir: string
-  }): vite.InlineConfig => ({
-    root,
-    logLevel: "silent",
-    build: {
-      ssr,
-      minify: false,
-      lib: {
-        entry: "lib/main.js",
-        formats: ["es"],
-      },
-      rollupOptions: {
-        output: {
-          dir: outDir,
-          entryFileNames: "index.js",
-        },
-      },
-    },
-    plugins: [envOnlyMacros()],
-  })
-
   const FILES = {
-    "lib/main.js": dedent`
+    "index.ts": dedent`
       import { serverOnly$, clientOnly$ } from "vite-env-only/macros"
 
       export default {
@@ -52,23 +24,37 @@ describe("macros", () => {
     `,
   }
 
-  test("serverOnly$", async ({ files }) => {
-    const root = await files(FILES)
-    const outDir = path.join(root, "dist/server")
-    await vite.build(config({ root, ssr: true, outDir }))
+  test("serverOnly$", async ({ cwd, files, viteConfig }) => {
+    await files(FILES)
 
-    expect((await import(path.join(outDir, "index.js"))).default).toEqual({
+    await vite.build(
+      viteConfig({
+        env: "server",
+        entry: "index.ts",
+        outputFile: "dist/index.js",
+        plugins: [envOnlyMacros()],
+      }),
+    )
+
+    expect((await import(path.join(cwd, "dist/index.js"))).default).toEqual({
       server: true,
       client: false,
     })
   })
 
-  test("clientOnly$", async ({ files }) => {
-    const root = await files(FILES)
-    const outDir = path.join(root, "dist/client")
-    await vite.build(config({ root, ssr: false, outDir }))
+  test("clientOnly$", async ({ cwd, files, viteConfig }) => {
+    await files(FILES)
 
-    expect((await import(path.join(outDir, "index.js"))).default).toEqual({
+    await vite.build(
+      viteConfig({
+        env: "client",
+        entry: "index.ts",
+        outputFile: "dist/index.js",
+        plugins: [envOnlyMacros()],
+      }),
+    )
+
+    expect((await import(path.join(cwd, "dist/index.js"))).default).toEqual({
       server: false,
       client: true,
     })
