@@ -6,7 +6,7 @@ import denyImports, {
   DenyImportsFileError,
   DenyImportsSpecifierError,
 } from "./deny-imports"
-import { Env } from "./env"
+import { Env, Envs } from "./env"
 
 const FILES = {
   "lib/index.ts": dedent`
@@ -20,8 +20,7 @@ const FILES = {
 }
 
 describe("denyImports", () => {
-  let envs: Array<Env> = ["server", "client"]
-  for (let env of envs) {
+  for (let env of Envs) {
     let otherEnv: Env = env === "server" ? "client" : "server"
 
     test(`specifiers / denied by exact match [${env}]`, async ({
