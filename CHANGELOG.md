@@ -1,5 +1,75 @@
 # vite-env-only
 
+## 4.0.0
+
+### Major Changes
+
+- 2dbbe2e: Move `denyImports` to `/deny-imports` subexport.
+
+  For example, in `vite.config.ts`:
+
+  ```ts
+  // BEFORE
+  import { denyImports } from "vite-env-only"
+
+  // AFTER
+  import { denyImports } from "vite-env-only/deny-imports"
+  ```
+
+- 469630f: Replace `clientOnly# vite-env-only and `serverOnly# vite-env-only with `only`
+
+  Also, `/macros` export has been replaces with `/macro`
+
+  ```ts
+  // BEFORE
+  import { clientOnly$, serverOnly$ } from "vite-env-only/macros"
+
+  export const clientThing = clientOnly$(1)
+  export const serverThing = clientOnly$(2)
+
+  // AFTER
+  import { only } from "vite-env-only/macro"
+
+  export const clientThing = only("client", 1)
+  export const serverThing = only("server", 2)
+  ```
+
+- 8c8d853: Stop publishing CJS; only publish ESM.
+
+  [Node 20+ (LTS) supports require(esm)](https://nodejs.org/en/blog/release/v20.19.0) which means all active & maintenance LTS versions across all major JavaScript runtimes can handle
+  ESM packages being `require`d in CJS code.
+
+### Minor Changes
+
+- f95b150: Add `DenyImportsSpecifierError` and `DenyImportsFileError` custom error types with structured, type-safe data in `details` field.
+
+  For example, if you are running Vite programmatically, you can now be precise about the errors you catch from `denyImports`.
+
+  ```ts
+  import {
+    DenyImportsSpecifierError,
+    DenyImportsFileError,
+  } from "vite-env-only"
+
+  try {
+    vite.build(/* ...config goes here... */)
+  } catch (err) {
+    if (err instanceof DenyImportsSpecifierError) {
+      err.details.pattern // string | RegExp
+      err.details.importer // string
+      err.details.import // string
+      err.details.env // "server" | "client"
+    }
+    if (err instanceof DenyImportsFileError) {
+      err.details.pattern // string | RegExp
+      err.details.importer // string | undefined
+      err.details.import // string
+      err.details.resolved // string
+      err.details.env // "server" | "client"
+    }
+  }
+  ```
+
 ## 3.0.3
 
 ### Patch Changes
